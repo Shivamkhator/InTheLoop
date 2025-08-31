@@ -39,7 +39,8 @@ export default function SignUpPage() {
                     <img src="https://skybee.vercel.app/InTheLoop.svg" alt="InTheLoop Logo" className="h-28 w-28" />
                   </div>
                   <h1 className="text-2xl font-bold text-gray-800">
-                    Create an account for <span className="text-yellow-500">InTheLoop</span>
+                    Create an account for <span className="text-cyan-700"
+                    style={{textShadow: '1px 1px 1px #000000'}}>InTheLoop</span>
                   </h1>
                 </header>
 
@@ -94,7 +95,7 @@ export default function SignUpPage() {
                   <Clerk.FieldError className="mt-2 block text-xs text-red-500" />
                 </Clerk.Field>
 
-                {/* Password Field */}
+                <div className='flex gap-4'>
                 <Clerk.Field name="username">
                   <Clerk.Label className="sr-only">Username</Clerk.Label>
                   <Clerk.Input
@@ -126,6 +127,7 @@ export default function SignUpPage() {
                   />
                   <Clerk.FieldError className="mt-2 block text-xs text-red-500" />
                 </Clerk.Field>
+                </div>
 
                 <SignUp.Action
                   submit
@@ -135,10 +137,10 @@ export default function SignUpPage() {
                     background: '#2aaa2a',
                     boxShadow: '2px 2px 1px rgb(0, 0, 0)',
                   }}
-                  onMouseEnter={e => {
+                  onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.currentTarget.style.boxShadow = '8px 8px 2px rgb(0, 0, 0)'
                   }}
-                  onMouseLeave={e => {
+                  onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.currentTarget.style.boxShadow = '2px 2px 1px rgb(0, 0, 0)'
                   }}
                 >
@@ -259,10 +261,10 @@ export default function SignUpPage() {
                 boxShadow: '4px 4px 2px rgb(0, 0, 0)',
                 border: '1px solid #2a2a2a',
               }}
-              onMouseEnter={e => {
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.boxShadow = '8px 8px 2px rgb(0, 0, 0)'
               }}
-              onMouseLeave={e => {
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.boxShadow = '4px 4px 2px rgb(0, 0, 0)'
               }}
             >
