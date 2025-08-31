@@ -39,7 +39,7 @@ export default function SignInPage() {
                   >
                     <img src="https://skybee.vercel.app/InTheLoop.svg" alt="InTheLoop Logo" className="h-28 w-28" />
                   </div>
-                  <h1 className="text-2xl font-bold text-gray-800">Sign In to <span className="text-cyan-700">InTheLoop</span></h1>
+                  <h1 className="text-2xl font-bold text-gray-800">Sign In to <span className="text-cyan-700" style={{textShadow: '1px 1px 1px #000000'}}>InTheLoop</span></h1>
                 </header>
 
                 <Clerk.GlobalError className="block text-center text-sm text-red-500" />
@@ -67,10 +67,10 @@ export default function SignInPage() {
                     background: '#2aaa2a',
                     boxShadow: '2px 2px 1px rgb(0, 0, 0)',
                   }}
-                  onMouseEnter={e => {
+                  onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.currentTarget.style.boxShadow = '8px 8px 2px rgb(0, 0, 0)'
                   }}
-                  onMouseLeave={e => {
+                  onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.currentTarget.style.boxShadow = '2px 2px 1px rgb(0, 0, 0)'
                   }}
                 >
@@ -121,10 +121,10 @@ export default function SignInPage() {
                         boxShadow: '4px 4px 2px rgb(0, 0, 0)',
                         border: '1px solid #2a2a2a',
                       }}
-                      onMouseEnter={e => {
+                      onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.currentTarget.style.boxShadow = '8px 8px 2px rgb(0, 0, 0)'
                       }}
-                      onMouseLeave={e => {
+                      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.currentTarget.style.boxShadow = '4px 4px 2px rgb(0, 0, 0)'
                       }}
                     >
@@ -189,10 +189,10 @@ export default function SignInPage() {
                 boxShadow: '4px 4px 2px rgb(0, 0, 0)',
                 border: '1px solid #2a2a2a',
               }}
-              onMouseEnter={e => {
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.boxShadow = '8px 8px 2px rgb(0, 0, 0)'
               }}
-              onMouseLeave={e => {
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.boxShadow = '4px 4px 2px rgb(0, 0, 0)'
               }}
             >
