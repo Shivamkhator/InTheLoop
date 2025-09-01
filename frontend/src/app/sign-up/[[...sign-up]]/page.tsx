@@ -1,9 +1,19 @@
 'use client'
 
+import { Icon } from '@iconify/react'
 import * as Clerk from '@clerk/elements/common'
 import * as SignUp from '@clerk/elements/sign-up'
+import { TypewriterEffectSmooth } from '@/components/ui/typewriter-effect'
+
 
 export default function SignUpPage() {
+  const words = [
+    {
+      text: "InTheLoop",
+      className: "text-cyan-700 text-5xl",
+    }
+  ]
+
   const arr = [
     'https://images.pexels.com/photos/1943411/pexels-photo-1943411.jpeg',
     'https://images.pexels.com/photos/1317365/pexels-photo-1317365.jpeg',
@@ -15,7 +25,6 @@ export default function SignUpPage() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-white">
       <SignUp.Root>
-        {/* Sign-Up Step 1: Collect user details */}
         <SignUp.Step name="start" className="w-full">
           <div className="flex">
             <div className="hidden h-screen overflow-hidden md:block md:w-2/5 lg:w-3/5 ">
@@ -39,9 +48,9 @@ export default function SignUpPage() {
                     <img src="https://skybee.vercel.app/InTheLoop.svg" alt="InTheLoop Logo" className="h-28 w-28" />
                   </div>
                   <h1 className="text-2xl font-bold text-gray-800">
-                    Create an account for <span className="text-cyan-700"
-                    style={{textShadow: '1px 1px 1px #000000'}}>InTheLoop</span>
+                    Create an account for
                   </h1>
+                  <TypewriterEffectSmooth words={words} className='justify-center' />
                 </header>
 
                 <Clerk.GlobalError className="block text-center text-sm text-red-500" />
@@ -96,37 +105,37 @@ export default function SignUpPage() {
                 </Clerk.Field>
 
                 <div className='flex gap-4'>
-                <Clerk.Field name="username">
-                  <Clerk.Label className="sr-only">Username</Clerk.Label>
-                  <Clerk.Input
-                    type="text"
-                    autoComplete="username"
-                    required
-                    placeholder="Username"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 placeholder-gray-400 transition-all duration-200 focus:border-purple-400 focus:bg-white focus:outline-none"
-                    style={{
-                      border: '1px solid #2aaa2a',
-                      boxShadow: '2px 2px 1px rgb(0, 0, 0)',
-                    }}
-                  />
-                  <Clerk.FieldError className="mt-2 block text-xs text-red-500" />
-                </Clerk.Field>
+                  <Clerk.Field name="username">
+                    <Clerk.Label className="sr-only">Username</Clerk.Label>
+                    <Clerk.Input
+                      type="text"
+                      autoComplete="username"
+                      required
+                      placeholder="Username"
+                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 placeholder-gray-400 transition-all duration-200 focus:border-purple-400 focus:bg-white focus:outline-none"
+                      style={{
+                        border: '1px solid #2aaa2a',
+                        boxShadow: '2px 2px 1px rgb(0, 0, 0)',
+                      }}
+                    />
+                    <Clerk.FieldError className="mt-2 block text-xs text-red-500" />
+                  </Clerk.Field>
 
-                <Clerk.Field name="password">
-                  <Clerk.Label className="sr-only">Password</Clerk.Label>
-                  <Clerk.Input
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    placeholder="Enter Password"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 placeholder-gray-400 transition-all duration-200 focus:border-purple-400 focus:bg-white focus:outline-none"
-                    style={{
-                      border: '1px solid #2aaa2a',
-                      boxShadow: '2px 2px 1px rgb(0, 0, 0)',
-                    }}
-                  />
-                  <Clerk.FieldError className="mt-2 block text-xs text-red-500" />
-                </Clerk.Field>
+                  <Clerk.Field name="password">
+                    <Clerk.Label className="sr-only">Password</Clerk.Label>
+                    <Clerk.Input
+                      type="password"
+                      autoComplete="new-password"
+                      required
+                      placeholder="Enter Password"
+                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 placeholder-gray-400 transition-all duration-200 focus:border-purple-400 focus:bg-white focus:outline-none"
+                      style={{
+                        border: '1px solid #2aaa2a',
+                        boxShadow: '2px 2px 1px rgb(0, 0, 0)',
+                      }}
+                    />
+                    <Clerk.FieldError className="mt-2 block text-xs text-red-500" />
+                  </Clerk.Field>
                 </div>
 
                 <SignUp.Action
@@ -168,18 +177,7 @@ export default function SignUpPage() {
                         e.currentTarget.style.boxShadow = '4px 4px 2px rgb(0, 0, 0)'
                       }}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 16 16"
-                        className="h-4 w-4"
-                        aria-hidden
-                      >
-                        <path
-                          fill="#4285F4"
-                          d="M8.32 7.28v2.187h5.227c-.16 1.226-.57 2.124-1.192 2.755-.764.765-1.955 1.6-4.035 1.6-3.218 0-5.733-2.595-5.733-5.813 0-3.218 2.515-5.814 5.733-5.814 1.733 0 3.005.685 3.938 1.565l1.538-1.538C12.498.96 10.756 0 8.32 0 3.91 0 .205 3.591.205 8s3.706 8 8.115 8c2.382 0 4.178-.782 5.582-2.24 1.44-1.44 1.893-3.475 1.893-5.111 0-.507-.035-.978-.115-1.369H8.32Z"
-                        />
-                      </svg>
+                      <Icon icon="flat-color-icons:google" className='h-5 w-5' />
                       Sign up with Google
                     </Clerk.Connection>
 
@@ -198,15 +196,7 @@ export default function SignUpPage() {
                         e.currentTarget.style.boxShadow = '4px 4px 2px rgb(0, 0, 0)'
                       }}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                        className="h-4 w-4"
-                        aria-hidden
-                      >
-                        <path d="M11.306 8.25c-.01-1.093.482-1.924 1.465-2.534-.552-.8-1.39-1.25-2.51-1.36-1.052-.106-2.202.614-2.617.614-.432 0-1.425-.584-2.2-.584C3.715 4.366 2 5.75 2 8.2c0 1.177.44 2.366 1.32 3.567.737 1.027 1.478 1.544 2.22 1.544.693 0 .986-.438 1.98-.438.975 0 1.246.438 1.982.438.757 0 1.537-.546 2.273-1.6.565-.8.883-1.6.89-1.6-.02-.008-1.36-.535-1.36-2.862zM9.89 2.36c.502-.61.74-1.36.66-2.16-.74.05-1.64.52-2.16 1.14-.47.53-.78 1.24-.72 1.96.77.06 1.55-.39 2.22-.94z" />
-                      </svg>
+                      <Icon icon="ant-design:apple-filled" className='h-5 w-5' />
                       Sign up with Apple
                     </Clerk.Connection>
                   </div>
