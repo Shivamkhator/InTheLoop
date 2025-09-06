@@ -1,44 +1,120 @@
-'use client'
-
-import Link from 'next/link'
+"use client";
 import {
-    SignInButton,
-    SignUpButton,
-    SignedIn,
-    SignedOut,
-    UserButton,
+  SignInButton,
+  SignUpButton,
+  SignOutButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser,
 } from '@clerk/nextjs'
 
-export default function Header() {
-    return (
-        <header className="flex justify-between items-center p-4 px-8 h-20 bg-white">
+import {
+  Navbar,
+  NavBody,
+  NavItems,
+  MobileNav,
+  NavbarLogo,
+  NavbarButton,
+  MobileNavHeader,
+  MobileNavToggle,
+  MobileNavMenu,
+} from "@/components/ui/resizable-navbar";
 
-            <Link href="/" className="flex items-center">
-                <img src="https://skybee.vercel.app/InTheLoop.svg" alt="InTheLoop Logo" className="h-20 w-20" />
-            </Link>
+import { AuthButtons } from './AuthButtons';
 
-            <div className="flex items-center gap-4">
-                <nav className="hidden md:flex gap-6 items-center">
-                    <Link href="/events" className="text-gray-600 hover:text-gray-900">Events</Link>
-                    <Link href="/history" className="text-gray-600 hover:text-gray-900">History</Link>
-                </nav>
-                <SignedOut>
-                    <SignInButton>
-                        <button className="text-gray-600 hover:text-gray-900 font-medium">
-                            Sign In
-                        </button>
-                    </SignInButton>
-                    <SignUpButton>
-                        <button className="bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
-                            Sign Up
-                        </button>
-                    </SignUpButton>
-                </SignedOut>
-                <SignedIn>
-                    <UserButton />
-                </SignedIn>
+import { useState } from "react";
+
+export function Header() {
+  const { isLoaded, user } = useUser();
+  const navItems = [
+    {
+      name: "Explore",
+      link: "/",
+    },
+    {
+      name: "Events",
+      link: "events",
+    },
+    {
+      name: "History",
+      link: "history",
+    },
+  ];
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  return (
+    <div className="sticky w-full top-4">
+      <Navbar>
+        {/* Desktop Navigation */}
+        <NavBody>
+          <NavbarLogo />
+          <NavItems items={navItems} />
+          <AuthButtons />
+        </NavBody>
+
+        <MobileNav>
+          <MobileNavHeader>
+            <NavbarLogo />
+            <div className="flex items-center gap-4 mr-2">
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+              <MobileNavToggle
+                isOpen={isMobileMenuOpen}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              /></div>
+
+          </MobileNavHeader>
+
+          <MobileNavMenu
+            isOpen={isMobileMenuOpen}
+            onClose={() => setIsMobileMenuOpen(false)}
+          >
+            {navItems.map((item, idx) => (
+              <a
+                key={`mobile-link-${idx}`}
+                href={item.link}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-neutral-600 dark:text-neutral-300 flex w-full justify-center"
+              >
+                <span>{item.name}</span>
+              </a>
+            ))}
+            <div className="flex flex-col w-full justify-center-safe gap-4">
+              <SignedOut>
+                <SignUpButton>
+                  <button className="bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer"
+                    style={{
+                      boxShadow: "2px 2px 1px rgb(0, 0, 0)",
+                    }}>
+                    Register Now
+                  </button>
+                </SignUpButton>
+                <SignInButton>
+                  <button className="text-gray-600 hover:text-gray-900 font-medium cursor-pointer">
+                    Already have an account? Login
+                  </button>
+                </SignInButton>
+
+              </SignedOut>
+              <SignedIn>
+                <SignOutButton>
+                  <button className="hover:text-gray-900 font-medium cursor-pointer bg-[#ff4747] text-white rounded-full text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                    style={{
+                      boxShadow: "2px 2px 1px rgb(0, 0, 0)",
+                    }}>
+                    Logout
+                  </button>
+                </SignOutButton>
+              </SignedIn>
             </div>
-        </header>
-    )
-}
+          </MobileNavMenu>
+        </MobileNav>
 
+      </Navbar>
+
+    </div>
+  );
+}

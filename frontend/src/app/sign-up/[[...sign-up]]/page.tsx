@@ -4,7 +4,7 @@ import { Icon } from '@iconify/react'
 import * as Clerk from '@clerk/elements/common'
 import * as SignUp from '@clerk/elements/sign-up'
 import { TypewriterEffectSmooth } from '@/components/ui/typewriter-effect'
-
+import { Compare } from '@/components/ui/compare'
 
 export default function SignUpPage() {
   const words = [
@@ -15,12 +15,20 @@ export default function SignUpPage() {
   ]
 
   const arr = [
-    'https://images.pexels.com/photos/1943411/pexels-photo-1943411.jpeg',
+    'https://images.pexels.com/photos/1684187/pexels-photo-1684187.jpeg',
     'https://images.pexels.com/photos/1317365/pexels-photo-1317365.jpeg',
-    'https://images.pexels.com/photos/450301/pexels-photo-450301.jpeg',
-    'https://images.pexels.com/photos/1943411/pexels-photo-1943411.jpeg',
-    'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg',
+    'https://images.pexels.com/photos/698907/pexels-photo-698907.jpeg',
+    'https://images.pexels.com/photos/1035841/pexels-photo-1035841.jpeg',
+    'https://images.pexels.com/photos/1186116/pexels-photo-1186116.jpeg',
+    'https://images.pexels.com/photos/1684187/pexels-photo-1684187.jpeg',
+    'https://images.pexels.com/photos/1317365/pexels-photo-1317365.jpeg',
+    'https://images.pexels.com/photos/698907/pexels-photo-698907.jpeg',
+    'https://images.pexels.com/photos/1035841/pexels-photo-1035841.jpeg',
+    'https://images.pexels.com/photos/1186116/pexels-photo-1186116.jpeg',
+
   ]
+
+  let rand = Math.floor(Math.random() * arr.length)
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-white">
@@ -28,27 +36,32 @@ export default function SignUpPage() {
         <SignUp.Step name="start" className="w-full">
           <div className="flex">
             <div className="hidden h-screen overflow-hidden md:block md:w-2/5 lg:w-3/5 ">
-              <img
-                src={arr[Math.floor(Math.random() * arr.length)]}
-                alt="Description"
+              <Compare
+                firstImage={arr[rand]}
+                secondImage={arr[rand]}
+                firstImageClassName="object-cover object-left-top"
+                secondImageClassname="object-cover object-left-top grayscale"
                 className="h-full w-full object-cover"
+                slideMode="hover"
               />
             </div>
             <div className="flex w-full items-center justify-center overflow-hidden bg-white p-8 md:w-3/5 lg:w-2/5 sm:p-16">
               <div className="space-y-4 pb-8">
                 <header className="text-center">
-                  <div
-                    className="mb-6 inline-flex h-18 w-18 items-center justify-center rounded-xl"
-                    style={{
-                      background: '#ffffff',
-                      border: '1px solid #2a2a2a',
-                      boxShadow: '4px 4px 1px rgb(0, 0, 0)',
-                    }}
-                  >
-                    <img src="https://skybee.vercel.app/InTheLoop.svg" alt="InTheLoop Logo" className="h-28 w-28" />
-                  </div>
+                  <a href="/">
+                    <div
+                      className="mb-6 inline-flex h-18 w-18 items-center justify-center rounded-xl"
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #2a2a2a',
+                        boxShadow: '4px 4px 1px rgb(0, 0, 0)',
+                      }}
+                    >
+                      <img src="https://skybee.vercel.app/InTheLoop.svg" alt="InTheLoop Logo" className="h-28 w-28" />
+                    </div>
+                  </a>
                   <h1 className="text-2xl font-bold text-gray-800">
-                    Create an account for
+                    Register an account in
                   </h1>
                   <TypewriterEffectSmooth words={words} className='justify-center' />
                 </header>
@@ -153,7 +166,7 @@ export default function SignUpPage() {
                     e.currentTarget.style.boxShadow = '2px 2px 1px rgb(0, 0, 0)'
                   }}
                 >
-                  Sign Up
+                  Create Account
                 </SignUp.Action>
 
                 <div className="space-y-4">
@@ -178,7 +191,7 @@ export default function SignUpPage() {
                       }}
                     >
                       <Icon icon="flat-color-icons:google" className='h-5 w-5' />
-                      Sign up with Google
+                      Register with Google
                     </Clerk.Connection>
 
                     {/* Apple */}
@@ -197,7 +210,7 @@ export default function SignUpPage() {
                       }}
                     >
                       <Icon icon="ant-design:apple-filled" className='h-5 w-5' />
-                      Sign up with Apple
+                      Register with Apple
                     </Clerk.Connection>
                   </div>
 
@@ -208,7 +221,7 @@ export default function SignUpPage() {
                       navigate="sign-in"
                       className="font-semibold text-purple-600 transition-colors hover:text-purple-700"
                     >
-                      Sign in
+                      Login
                     </Clerk.Link>
                   </p>
                 </div>
@@ -265,7 +278,7 @@ export default function SignUpPage() {
           <p className="text-center text-sm text-gray-600">
             Already have an account?{' '}
             <Clerk.Link navigate="sign-in" className="rounded px-1 py-0.5 text-gray-800">
-              Sign in
+              Login
             </Clerk.Link>
           </p>
         </SignUp.Step>

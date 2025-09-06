@@ -4,6 +4,7 @@ import { Icon } from '@iconify/react'
 import * as Clerk from '@clerk/elements/common'
 import * as SignIn from '@clerk/elements/sign-in'
 import { TypewriterEffectSmooth } from '@/components/ui/typewriter-effect'
+import { Compare } from "@/components/ui/compare";
 
 export default function SignInPage() {
   const words = [
@@ -14,12 +15,21 @@ export default function SignInPage() {
   ]
 
   const arr = [
-    'https://images.pexels.com/photos/1943411/pexels-photo-1943411.jpeg',
+    'https://images.pexels.com/photos/1684187/pexels-photo-1684187.jpeg',
     'https://images.pexels.com/photos/1317365/pexels-photo-1317365.jpeg',
-    'https://images.pexels.com/photos/450301/pexels-photo-450301.jpeg',
-    'https://images.pexels.com/photos/1943411/pexels-photo-1943411.jpeg',
-    'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg',
+    'https://images.pexels.com/photos/698907/pexels-photo-698907.jpeg',
+    'https://images.pexels.com/photos/1035841/pexels-photo-1035841.jpeg',
+    'https://images.pexels.com/photos/1186116/pexels-photo-1186116.jpeg',
+    'https://images.pexels.com/photos/1684187/pexels-photo-1684187.jpeg',
+    'https://images.pexels.com/photos/1317365/pexels-photo-1317365.jpeg',
+    'https://images.pexels.com/photos/698907/pexels-photo-698907.jpeg',
+    'https://images.pexels.com/photos/1035841/pexels-photo-1035841.jpeg',
+    'https://images.pexels.com/photos/1186116/pexels-photo-1186116.jpeg',
+
   ]
+
+  let rand = Math.floor(Math.random() * arr.length)
+
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-white">
@@ -27,10 +37,14 @@ export default function SignInPage() {
         <SignIn.Step name="start" className="w-full">
           <div className="flex">
             <div className="hidden h-screen overflow-hidden md:block md:w-2/5 lg:w-3/5 ">
-              <img
-                src={arr[Math.floor(Math.random() * arr.length)]}
-                alt="Description"
+
+              <Compare
+                firstImage={arr[rand]}
+                secondImage={arr[rand]}
+                firstImageClassName="object-cover object-left-top"
+                secondImageClassname="object-cover object-left-top grayscale"
                 className="h-full w-full object-cover"
+                slideMode="hover"
               />
             </div>
             <div
@@ -38,6 +52,7 @@ export default function SignInPage() {
             >
               <div className="space-y-4 pb-8 bg-white">
                 <header className="text-center">
+                  <a href="/">
                   <div
                     className="mb-6 inline-flex h-18 w-18 items-center justify-center rounded-xl z-10"
                     style={{
@@ -48,7 +63,8 @@ export default function SignInPage() {
                   >
                     <img src="https://skybee.vercel.app/InTheLoop.svg" alt="InTheLoop Logo" className="h-28 w-28" />
                   </div>
-                  <h1 className="text-2xl font-bold text-gray-800">Sign In to
+                  </a>
+                  <h1 className="text-2xl font-bold text-gray-800">Login to
                     <TypewriterEffectSmooth words={words} />
                   </h1>
 
@@ -86,7 +102,7 @@ export default function SignInPage() {
                     e.currentTarget.style.boxShadow = '2px 2px 1px rgb(0, 0, 0)'
                   }}
                 >
-                  Sign In
+                  Sign In to Continue
                 </SignIn.Action>
 
                 <div className="space-y-4">
@@ -141,7 +157,7 @@ export default function SignInPage() {
                       navigate="sign-up"
                       className="font-semibold text-purple-600 transition-colors hover:text-purple-700"
                     >
-                      Sign up
+                      Register Now
                     </Clerk.Link>
                   </p>
                 </div>
@@ -196,7 +212,7 @@ export default function SignInPage() {
           <p className="text-center text-sm text-gray-600">
             Don&apos;t have an account?{' '}
             <Clerk.Link navigate="sign-up" className="rounded px-1 py-0.5 text-gray-800">
-              Sign up
+             Register Now
             </Clerk.Link>
           </p>
         </SignIn.Step>
