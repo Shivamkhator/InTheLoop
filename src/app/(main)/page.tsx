@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, memo } from "react";
+import React, { useEffect, useState, useMemo, memo, useCallback } from "react";
 import { Icon } from "@iconify/react";
 
 // ---------------- INTERFACES ----------------
@@ -144,16 +144,17 @@ const EventCard = memo(({ event }: { event: Event }) => {
 
 // ---------------- MAIN PAGE ----------------
 export default function Home() {
-  const userCity = "New York"; // ✅ keep normal name
+  const [userCity, setUserCity] = useState("Vellore");
   const [searchQuery, setSearchQuery] = useState("");
   const [events, setEvents] = useState<Event[]>([]);
+  const [loadingCity, setLoadingCity] = useState(false);
+  const [cityError, setCityError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("/api/events"); // ✅ Now from Next.js API
+        const res = await fetch("/api/events");
         const data = await res.json();
-        console.log("Fetched events:", data); // ✅ debug
         setEvents(data);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -161,6 +162,74 @@ export default function Home() {
     };
     fetchEvents();
   }, []);
+
+  // --- Geolocation Logic with Real API Placeholder ---
+  const handleDetectCity = useCallback(async () => {
+    if (!navigator.geolocation) {
+      setCityError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setLoadingCity(true);
+    setCityError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          // ----------------------------------------------------------------------
+          // ✅ START OF REAL API LOGIC
+          // ----------------------------------------------------------------------
+
+          // NOTE: This URL uses the Nominatim reverse geocoding service (OpenStreetMap).
+          // You should consider implementing a secure backend API route for this 
+          // to manage rate limits and ensure stability in a production app.
+          const geocodeUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`;
+
+          const geocodeRes = await fetch(geocodeUrl, {
+            // Add a proper User-Agent header if deploying publicly 
+            // to comply with Nominatim's usage policy.
+            headers: {
+              'User-Agent': 'EventExplorerApp/1.0 (contact@youremail.com)'
+            }
+          });
+
+          if (!geocodeRes.ok) throw new Error("Geocoding service failed.");
+
+          const data = await geocodeRes.json();
+          let detectedCity = "Unknown City";
+
+          // Nominatim often places the city name in 'city' or 'town' or 'village' or 'suburb'
+          const address = data.address;
+          if (address) {
+            detectedCity = address.city || address.town || address.village || address.suburb || address.state || "Unknown City";
+          }
+
+          // ----------------------------------------------------------------------
+          // ✅ END OF REAL API LOGIC
+          // ----------------------------------------------------------------------
+
+          setUserCity(detectedCity);
+          setLoadingCity(false);
+          setCityError(null);
+        } catch (error) {
+          console.error("Error reverse geocoding:", error);
+          setCityError("Could not determine city from location. Please enter it manually.");
+          setLoadingCity(false);
+        }
+      },
+      (error) => {
+        console.error("Geolocation Error:", error);
+        setLoadingCity(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          setCityError("Location access denied by user. Please enable it.");
+        } else {
+          setCityError("Could not get location. Please use the input field.");
+        }
+      }
+    );
+  }, []);
+  // -------------------------
 
   const eventsInMyCity = useMemo(
     () =>
@@ -187,15 +256,36 @@ export default function Home() {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <Header
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
       </div>
 
       <Container>
         {/* Events in My City */}
         <section className="py-12 md:py-16">
-          <h2 className="text-3xl sm:text-4xl font-extrabold mb-8">
-            Events in <span className="text-purple-600">{userCity}</span>
-          </h2>
+          <div className="flex items-center flex-wrap gap-4 mb-8">
+            <h2 className="text-3xl sm:text-4xl font-extrabold">
+              Upcoming Events in <span className="text-purple-600 flex gap-4 items-center">{userCity || "Your City"}
+                <button
+                  onClick={handleDetectCity}
+                  disabled={loadingCity}
+                  className="flex items-center justify-center h-full p-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors duration-200 disabled:bg-gray-400"
+                  title="Detect City using GPS"
+                >
+                  {loadingCity ? (
+                    <Icon icon="mdi:loading" className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Icon icon="mdi:crosshairs-gps" className="h-5 w-5" />
+                  )}
+                </button>
+              </span>
+            </h2>
+
+          </div>
+
+
           {eventsInMyCity.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {eventsInMyCity.map((event) => (
@@ -204,10 +294,10 @@ export default function Home() {
             </div>
           ) : (
             <p
-              className="text-center text-gray-500 text-lg p-8 bg-white rounded-lg shadow-sm border border-black"
+              className="text-center text-gray-800 text-lg p-8 bg-white rounded-lg shadow-sm border border-black"
               style={{ boxShadow: "2px 2px 1px rgb(0, 0, 0)" }}
             >
-              No upcoming events found in your city. Check back soon!
+              No upcoming events found in <span className="font-bold italic">{userCity}</span>.
             </p>
           )}
         </section>
@@ -215,7 +305,7 @@ export default function Home() {
         {/* All Events */}
         <section className="py-12 md:py-16">
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-8">
-            All <span className="text-purple-600">Events</span>
+            All Upcoming <span className="text-purple-600">Events</span>
           </h2>
           {events.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -228,7 +318,7 @@ export default function Home() {
               className="text-center text-gray-500 text-lg p-8 bg-white rounded-lg shadow-sm border border-black"
               style={{ boxShadow: "2px 2px 1px rgb(0, 0, 0)" }}
             >
-              No events available at the moment. Check back soon!
+              No upcoming events at the moment. Check back soon!
             </p>
           )}
         </section>
@@ -237,7 +327,6 @@ export default function Home() {
   );
 }
 
-// ---------------- HEADER ----------------
 const Header = ({
   searchQuery,
   setSearchQuery,
@@ -260,8 +349,10 @@ const Header = ({
           Discover, explore, book.
         </h1>
         <p className="mt-2 text-gray-600 text-sm">
-          Search and discover the best events around you.
+          Search and discover the best events according to your interests.
         </p>
+
+        {/* Event Search Input */}
         <div className="relative mt-12 w-full max-w-sm mx-auto">
           <Icon
             icon="eva:search-fill"
@@ -269,12 +360,12 @@ const Header = ({
           />
           <input
             type="text"
-            placeholder="Search for an event"
+            placeholder="Search for an event or location"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full py-3 pl-12 pr-4 bg-white rounded-full border border-gray-200 shadow-sm transition-all duration-200 
-          focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2
-          hover:ring-2 hover:ring-purple-400 hover:ring-offset-2"
+            focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2
+            hover:ring-2 hover:ring-purple-400 hover:ring-offset-2"
           />
         </div>
       </div>
