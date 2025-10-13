@@ -1,7 +1,39 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
-// Removed dependency on @iconify/react for stable compilation
+import { Icon } from "@iconify/react";
+
+// ---------------- UTILITY ICON COMPONENTS (Using Iconify) ----------------
+const DotsVerticalIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:dots-vertical" className={className} />
+);
+const EditIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:pencil-outline" className={className} />
+);
+const TrashIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:trash-can-outline" className={className} />
+);
+const MapPinIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:map-marker" className={className} />
+);
+const CalendarPlusIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:calendar-plus" className={className} />
+);
+const CrosshairsGpsIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:crosshairs-gps" className={className} />
+);
+const SearchIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="eva:search-fill" className={className} />
+);
+const PlusCircleIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:plus-circle-outline" className={className} />
+);
+const AlertIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:alert-circle-outline" className={className} />
+);
+const CloseIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:close" className={className} />
+);
 
 // ---------------- INTERFACES ----------------
 interface City {
@@ -46,214 +78,116 @@ interface FormData {
   image: string;
 }
 
-// ---------------- ICON UTILS (Using Inline SVGs and Emojis) ----------------
-// Standard SVG Icons for CRUD/Navigation
-const PlusCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 8v8" />
-    <path d="M8 12h8" />
-  </svg>
-);
-const MapPinIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
-const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-  </svg>
-);
-const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M3 6h18" />
-    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-  </svg>
-);
-const CalendarPlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
-    <line x1="12" y1="14" x2="12" y2="18" />
-    <line x1="10" y1="16" x2="14" y2="16" />
-  </svg>
-);
-const DotsVerticalIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-  >
-    <circle cx="12" cy="7" r="1.5" />
-    <circle cx="12" cy="12" r="1.5" />
-    <circle cx="12" cy="17" r="1.5" />
-  </svg>
-);
-const CrosshairsGpsIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-  >
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-12h2v4h4v2h-4v4h-2v-4H7v-2h4V8z" />
-  </svg>
-);
-const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-  >
-    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-  </svg>
-);
-const XCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="m15 9-6 6" />
-    <path d="m9 9 6 6" />
-  </svg>
-);
+interface Feedback {
+  type: "success" | "error";
+  message: string;
+}
 
-// Category Icons (Emojis used to avoid external dependencies)
+const initialFormData: FormData = {
+  _id: null,
+  title: "",
+  description: "",
+  date: "",
+  category: "",
+  city: "",
+  location: "",
+  image: "",
+};
+
+// ---------------- ICONS (Category Switch) ----------------
 const getIcon = (category: string) => {
   switch (category.toLowerCase()) {
     case "concert":
-      return <span className="h-6 w-6 text-purple-500 text-2xl">🎵</span>;
+      return (
+        <Icon
+          icon="flat-color-icons:music"
+          className="h-6 w-6 text-purple-500"
+        />
+      );
     case "dance":
-      return <span className="h-6 w-6 text-2xl">💃</span>;
+      return <Icon icon="noto:woman-dancing" className="h-6 w-6" />;
     case "competition":
-      return <span className="h-6 w-6 text-yellow-500 text-2xl">🏆</span>;
+      return <Icon icon="mdi:trophy" className="h-6 w-6 text-yellow-500" />;
     case "party":
-      return <span className="h-6 w-6 text-purple-500 text-2xl">🎉</span>;
+      return <Icon icon="bxs:party" className="h-6 w-6 text-purple-500" />;
     case "movie":
-      return <span className="h-6 w-6 text-gray-500 text-2xl">🎬</span>;
+      return (
+        <Icon icon="mingcute:movie-fill" className="h-6 w-6 text-gray-500" />
+      );
+    case "workshop":
+      return <Icon icon="mdi:tools" className="h-6 w-6 text-green-500" />;
     default:
-      return null;
+      return (
+        <Icon icon="mdi:calendar-star" className="h-6 w-6 text-gray-500" />
+      );
   }
 };
 
-// ---------------- UTILITY COMPONENTS ----------------
-const FeedbackMessage = ({
-  feedback,
-  onClose,
-}: {
-  feedback: { type: "success" | "error"; message: string } | null;
-  onClose: () => void;
-}) => {
-  if (!feedback) return null;
-  const bgColor =
-    feedback.type === "success"
-      ? "bg-green-100 border-green-500 text-green-700"
-      : "bg-red-100 border-red-500 text-red-700";
-  const icon = feedback.type === "success" ? "✅" : "❌";
-
-  return (
-    <div
-      className={`fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex justify-center items-start pt-20 transition-opacity duration-300`}
-    >
-      <div
-        className={`p-5 rounded-xl border-l-4 ${bgColor} shadow-2xl w-full max-w-sm mx-4 transform transition-transform duration-300 scale-100`}
-      >
-        <div className="flex justify-between items-start">
-          <div className="flex items-center">
-            <span className="text-xl mr-3">{icon}</span>
-            <p className="font-medium">{feedback.message}</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 font-bold text-lg leading-none p-1"
-          >
-            &times;
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+// ---------------- REUSABLE CONTAINER ----------------
 const Container: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="w-full max-w-6xl mx-auto px-4 md:px-8 lg:px-12">
     {children}
   </div>
 );
 
-// ---------------- DROPDOWN ACTIONS ----------------
+// ---------------- FEEDBACK MESSAGE (MODIFIED FOR BOTTOM-RIGHT TOAST) ----------------
+const FeedbackMessage: React.FC<{
+  feedback: Feedback | null;
+  onClose: () => void;
+}> = ({ feedback, onClose }) => {
+  if (!feedback) return null;
 
+  // Change position from top-4 to bottom-4, keep right-4
+  const baseClasses =
+    "fixed bottom-4 right-4 z-50 p-4 rounded-lg shadow-xl flex items-center transition-all duration-300 ease-in-out transform";
+  const successClasses = "bg-green-600 text-white shadow-green-500/50";
+  const errorClasses = "bg-red-600 text-white shadow-red-500/50";
+
+  // Use useEffect to automatically dismiss the toast after 4 seconds
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [feedback, onClose]);
+
+  return (
+    <div
+      className={`${baseClasses} ${
+        feedback.type === "success" ? successClasses : errorClasses
+      }`}
+      style={{ animation: 'slideUp 0.3s ease-out forwards' }} // Apply animation for visibility
+    >
+      <div className="flex items-center space-x-3">
+        {feedback.type === "success" ? (
+          <Icon icon="mdi:check-circle" className="h-6 w-6" />
+        ) : (
+          <Icon icon="mdi:alert-circle" className="h-6 w-6" />
+        )}
+        <p className="text-sm font-medium">{feedback.message}</p>
+      </div>
+      <button
+        onClick={onClose}
+        className="ml-4 -mr-1 p-1 rounded-full hover:bg-white hover:bg-opacity-20 transition"
+      >
+        <CloseIcon className="h-5 w-5" />
+      </button>
+      {/* Global style to define the slide-up animation */}
+      <style jsx global>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(100%);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+// ---------------- ACTIONS DROPDOWN (CRUD) ----------------
 const ActionsDropdown = memo(
   ({
     event,
@@ -263,32 +197,49 @@ const ActionsDropdown = memo(
   }: {
     event: EventData;
     onEdit: (event: EventData) => void;
-    onDelete: (id: string) => void;
+    // Changed onDelete signature to handle direct delete logic (no modal)
+    onDelete: (event: EventData) => void;
     loading: boolean;
   }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false); // New state for double-click confirmation
 
-    const toggleDropdown = useCallback(() => setIsOpen((prev) => !prev), []);
+    const toggleDropdown = useCallback(() => {
+      setIsOpen((prev) => !prev);
+      setConfirmDelete(false); // Reset confirmation state on open/close
+    }, []);
 
     const handleDeleteClick = useCallback(() => {
-      setIsOpen(false);
-      onDelete(event._id);
-    }, [onDelete, event._id]);
+      if (confirmDelete) {
+        setIsOpen(false);
+        setConfirmDelete(false); // Final delete action
+        onDelete(event); // Triggers the delete directly
+      } else {
+        setConfirmDelete(true); // First click: ask for confirmation
+        setTimeout(() => setConfirmDelete(false), 3000); // Reset after 3 seconds
+      }
+    }, [confirmDelete, onDelete, event]);
 
     const handleEditClick = useCallback(() => {
       setIsOpen(false);
       onEdit(event);
+      // Simulate redirect: Scroll to the form
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }, [onEdit, event]);
 
-    // Close dropdown when clicking outside
     useEffect(() => {
       const handleClickOutside = (e: MouseEvent) => {
+        const dropdownElement = document.getElementById(
+          `actions-dropdown-${event._id}`
+        );
         if (
           isOpen &&
+          dropdownElement &&
           e.target instanceof HTMLElement &&
-          !e.target.closest(`#actions-dropdown-${event._id}`)
+          !dropdownElement.contains(e.target)
         ) {
           setIsOpen(false);
+          setConfirmDelete(false); // Reset confirmation state
         }
       };
       document.addEventListener("mousedown", handleClickOutside);
@@ -299,13 +250,15 @@ const ActionsDropdown = memo(
     return (
       <div
         id={`actions-dropdown-${event._id}`}
-        className="relative inline-block text-left z-10"
+        className="relative inline-block text-left z-20"
       >
         <button
           type="button"
           onClick={toggleDropdown}
           disabled={loading}
-          className="inline-flex justify-center items-center w-full rounded-full border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 disabled:opacity-50"
+          className="inline-flex justify-center items-center w-8 h-8 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100 disabled:opacity-50"
+          aria-expanded={isOpen}
+          aria-haspopup="true"
         >
           <DotsVerticalIcon className="h-5 w-5" />
         </button>
@@ -315,7 +268,7 @@ const ActionsDropdown = memo(
             className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
             role="menu"
             aria-orientation="vertical"
-            aria-labelledby="menu-button"
+            aria-labelledby={`actions-dropdown-${event._id}`}
           >
             <div className="py-1" role="none">
               <button
@@ -328,11 +281,23 @@ const ActionsDropdown = memo(
               </button>
               <button
                 onClick={handleDeleteClick}
-                className="text-red-600 flex items-center w-full px-4 py-2 text-sm hover:bg-red-50"
+                className={`flex items-center w-full px-4 py-2 text-sm ${
+                  confirmDelete
+                    ? "bg-red-500 text-white font-bold hover:bg-red-600"
+                    : "text-red-600 hover:bg-red-50"
+                }`}
                 role="menuitem"
+                disabled={loading}
               >
-                <TrashIcon className="h-4 w-4 mr-2 text-red-500" />
-                Delete Event
+                <TrashIcon className="h-4 w-4 mr-2" />
+                {confirmDelete ? (
+                  <>
+                    <span className="animate-pulse">Click AGAIN to Delete!</span>
+                    <AlertIcon className="h-4 w-4 ml-2" />
+                  </>
+                ) : (
+                  "Delete Event"
+                )}
               </button>
             </div>
           </div>
@@ -352,26 +317,29 @@ const EventCard = memo(
   }: {
     event: EventData;
     onEdit: (event: EventData) => void;
-    onDelete: (id: string) => void;
+    onDelete: (event: EventData) => void;
     loading: boolean;
   }) => {
+    // FIX 1: Corrected the Google Maps URL template
     const getGoogleMapsUrl = (location: string, city: string) => {
       const encodedLocation = encodeURIComponent(`${location}, ${city}`);
       return `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
     };
 
+    // FIX 2: Corrected Google Calendar URL date formatting (ZULU/UTC)
     const getGoogleCalendarUrl = (event: EventData) => {
       const date = new Date(event.date);
-      const start = new Date(date.getTime());
-      const end = new Date(date.getTime() + 2 * 60 * 60 * 1000); // Assume 2-hour duration
+      // Assuming a 2-hour event duration for the calendar template
+      const end = new Date(date.getTime() + 2 * 60 * 60 * 1000);
 
+      // Calendar dates must be in YYYYMMDDTHHMMSS format (UTC/Zulu)
       const formatDateTime = (d: Date) =>
         d
           .toISOString()
-          .replace(/[-:]|\.\d{3}/g, "")
-          .replace("Z", "");
+          .replace(/[-:]|\.\d{3}/g, "") // Remove - : and milliseconds
+          .slice(0, 15); // Keep YYYYMMDDTHHMMSS
 
-      const dates = `${formatDateTime(start)}/${formatDateTime(end)}`;
+      const dates = `${formatDateTime(date)}/${formatDateTime(end)}`;
       const text = encodeURIComponent(event.title);
       const details = encodeURIComponent(event.description);
       const location = encodeURIComponent(
@@ -392,13 +360,12 @@ const EventCard = memo(
 
     return (
       <div
-        className="bg-white p-6 rounded-xl shadow-lg transition-all duration-300 relative"
+        className="bg-white p-6 rounded-xl shadow-lg transition-all duration-300 relative group"
         style={{
           boxShadow: "2px 2px 1px rgb(0, 0, 0)",
           border: "1px solid rgb(0, 0, 0)",
         }}
       >
-        {/* CRUD Dropdown */}
         <div className="absolute top-4 right-4 z-20">
           <ActionsDropdown
             event={event}
@@ -408,18 +375,21 @@ const EventCard = memo(
           />
         </div>
 
-        {event.image && (
-          <img
-            src={event.image}
-            alt={event.title}
-            className="w-full h-40 object-cover rounded-lg mb-4"
-            onError={(e: any) => {
-              e.target.onerror = null;
-              e.target.src =
-                "https://placehold.co/600x160/cccccc/333333?text=Image+Missing";
-            }}
-          />
-        )}
+        <img
+          src={
+            event.image ||
+            "https://placehold.co/600x160/cccccc/333333?text=Image+Missing"
+          }
+          alt={event.title}
+          className="w-full h-40 object-cover rounded-lg mb-4"
+          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+            const target = e.target as HTMLImageElement;
+            target.onerror = null;
+            target.src =
+              "https://placehold.co/600x160/cccccc/333333?text=Image+Missing";
+          }}
+        />
+
         <div className="flex items-start justify-between mb-4 pr-10">
           <div>
             <h3 className="text-xl font-bold text-gray-800 line-clamp-1">
@@ -431,9 +401,11 @@ const EventCard = memo(
             {getIcon(event.category.name)}
           </div>
         </div>
+
         <p className="text-gray-600 text-sm mb-4 line-clamp-3">
           {event.description}
         </p>
+
         <div className="flex items-center space-x-4 text-gray-500 pt-2 border-t border-gray-100">
           <a
             href={getGoogleMapsUrl(event.location.name, event.city.name)}
@@ -443,7 +415,7 @@ const EventCard = memo(
             title="View on Google Maps"
           >
             <MapPinIcon className="h-4 w-4 mr-1 text-purple-500" />
-            <span>{event.location.name}</span>
+            <span className="line-clamp-1">{event.location.name}</span>
           </a>
           <a
             href={getGoogleCalendarUrl(event)}
@@ -461,10 +433,8 @@ const EventCard = memo(
   }
 );
 
-// ---------------- MODAL FORM COMPONENT ----------------
-
-interface ModalProps {
-  isEditing: boolean;
+// ---------------- EVENT CRUD FORM (Only Renders for Edit/Create) ----------------
+const EventCrudForm: React.FC<{
   formData: FormData;
   loading: boolean;
   handleChange: (
@@ -473,229 +443,187 @@ interface ModalProps {
     >
   ) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
-  onClose: () => void;
-}
+  resetForm: () => void;
+  // New prop to control visibility
+  isVisible: boolean;
+}> = ({ formData, loading, handleChange, handleSubmit, resetForm, isVisible }) => {
+  if (!isVisible) return null; // Render null if not visible
 
-const EventFormModal: React.FC<ModalProps> = ({
-  isEditing,
-  formData,
-  loading,
-  handleChange,
-  handleSubmit,
-  onClose,
-}) => {
+  const isEditing = !!formData._id;
+
   return (
-    <div
-      className="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center p-4 overflow-y-auto transition-opacity duration-300"
-      // Outer Overlay uses backdrop-filter to blur the content behind the modal box
-      style={{ backdropFilter: "blur(4px)" }}
-    >
-      <div className="w-full max-w-2xl rounded-xl shadow-2xl my-8 transform scale-100 transition-transform duration-300">
-        <div
-          className="rounded-xl overflow-hidden p-6"
-          // Inner content box using transparency and blur for the core glass effect
-          style={{
-            backgroundColor: "rgba(255, 255, 255, 0.6)", // Semi-transparent white
-            border: "1px solid rgba(255, 255, 255, 0.3)", // Light border
-            boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)", // Glass shadow
-            backdropFilter: "blur(15px)", // Stronger inner blur
-          }}
-        >
-          {/* Modal Header */}
-          <div className="flex justify-between items-center pb-4 mb-4 border-b border-gray-300/50">
-            <h2 className="text-2xl font-bold text-gray-800">✏️ Edit Event</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              <XCircleIcon className="h-7 w-7" />
-            </button>
+    <div className="w-full max-w-4xl mx-auto py-6" id="event-crud-form">
+      <h2 className="text-2xl font-bold text-gray-700 mb-4 border-b pb-2">
+        {isEditing ? "✏️ Edit Event" : "✨ Create New Event"}
+      </h2>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-xl shadow-lg border-2 border-gray-900 space-y-6 mb-12"
+        style={{ boxShadow: "4px 4px 0px #1f2937" }}
+      >
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700">
+            Event Title
+          </label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Enter event title"
+            className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
+            required
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700">
+            Description
+          </label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Enter event description"
+            rows={4}
+            className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Date */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700">
+              Event Date & Time
+            </label>
+            <input
+              type="datetime-local"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
+              required
+            />
           </div>
 
-          {/* Modal Body (Form) */}
+          {/* Category */}
           <div>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Title */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700">
-                  Event Title
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="Enter event title"
-                  className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-400 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150 bg-white bg-opacity-80"
-                  required
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Enter event description"
-                  rows={4}
-                  className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-400 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150 bg-white bg-opacity-80"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Date */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700">
-                    Event Date & Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleChange}
-                    className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-400 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150 bg-white bg-opacity-80"
-                    required
-                  />
-                </div>
-
-                {/* Category */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700">
-                    Category
-                  </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-400 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150 bg-white bg-opacity-80"
-                    required
-                  >
-                    <option value="">Select a category</option>
-                    <option value="Concert">Concert</option>
-                    <option value="Party">Party</option>
-                    <option value="Dance">Dance</option>
-                    <option value="Movie">Movie</option>
-                    <option value="Competition">Competition</option>
-                    <option value="Workshop">Workshop</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* City & Location */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700">
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="e.g., San Francisco"
-                    className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-400 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150 bg-white bg-opacity-80"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700">
-                    Location / Venue
-                  </label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    placeholder="e.g., The Warfield"
-                    className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-400 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150 bg-white bg-opacity-80"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Image URL */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700">
-                  Event Image URL (Optional)
-                </label>
-                <input
-                  type="url"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleChange}
-                  placeholder="https://example.com/event.jpg"
-                  className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-400 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150 bg-white bg-opacity-80"
-                />
-              </div>
-
-              {/* Submit */}
-              <div className="flex justify-end pt-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full flex items-center justify-center py-3 px-6 rounded-lg bg-purple-600 text-white font-bold text-lg shadow-md hover:bg-purple-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  style={{
-                    boxShadow: loading ? "none" : "2px 2px 0px #4c1d95",
-                  }}
-                >
-                  {loading ? (
-                    <span className="flex items-center">
-                      <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Saving...
-                    </span>
-                  ) : (
-                    <>
-                      <EditIcon className="h-5 w-5 mr-2" />
-                      Update Event
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+            <label className="block text-sm font-bold text-gray-700">
+              Category
+            </label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
+              required
+            >
+              <option value="">Select a category</option>
+              <option value="Concert">Concert</option>
+              <option value="Party">Party</option>
+              <option value="Dance">Dance</option>
+              <option value="Movie">Movie</option>
+              <option value="Competition">Competition</option>
+              <option value="Workshop">Workshop</option>
+            </select>
           </div>
         </div>
-      </div>
+
+        {/* City & Location */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-bold text-gray-700">
+              City
+            </label>
+            <input
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              placeholder="e.g., San Francisco"
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700">
+              Location / Venue
+            </label>
+            <input
+              type="text"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="e.g., The Warfield"
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Image URL */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700">
+            Event Image URL (Optional)
+          </label>
+          <input
+            type="url"
+            name="image"
+            value={formData.image}
+            onChange={handleChange}
+            placeholder="https://example.com/event.jpg"
+            className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
+          />
+        </div>
+
+        {/* Submit / Cancel */}
+        <div className="flex space-x-4 pt-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 flex items-center justify-center py-3 px-6 rounded-lg bg-purple-600 text-white font-bold text-lg shadow-md hover:bg-purple-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            style={{ boxShadow: loading ? "none" : "2px 2px 0px #4c1d95" }}
+          >
+            {loading ? (
+              <span className="flex items-center">
+                <Icon
+                  icon="mdi:loading"
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                />
+                Saving...
+              </span>
+            ) : (
+              <>
+                {isEditing ? (
+                  <EditIcon className="h-5 w-5 mr-2" />
+                ) : (
+                  <PlusCircleIcon className="h-5 w-5 mr-2" />
+                )}
+                {isEditing ? "Update Event" : "Create Event"}
+              </>
+            )}
+          </button>
+          {isEditing && (
+            <button
+              type="button"
+              onClick={resetForm}
+              disabled={loading}
+              className="w-1/4 py-3 px-6 rounded-lg bg-gray-200 text-gray-800 font-bold shadow-md hover:bg-gray-300 transition-all duration-300 disabled:opacity-50"
+            >
+              Cancel Edit
+            </button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };
 
 // ---------------- MAIN COMPONENT (CRUD MANAGER) ----------------
-const initialFormData: FormData = {
-  _id: null,
-  title: "",
-  description: "",
-  date: "",
-  category: "",
-  city: "",
-  location: "",
-  image: "",
-};
-
-export default function Home() {
+export default function EventCrudManager() {
   const [events, setEvents] = useState<EventData[]>([]);
   const [userCity, setUserCity] = useState("Vellore");
   const [searchQuery, setSearchQuery] = useState("");
@@ -704,14 +632,13 @@ export default function Home() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [loading, setLoading] = useState<boolean>(false);
   const [fetchLoading, setFetchLoading] = useState<boolean>(true);
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [loadingCity, setLoadingCity] = useState(false);
   const [cityError, setCityError] = useState<string | null>(null);
-  const [isFormVisible, setIsFormVisible] = useState(false); // Controls Modal visibility
 
+  // New state to manage form visibility
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  
   const isEditing = !!formData._id;
   const MONGODB_API_ENDPOINT = "/api/events";
 
@@ -723,7 +650,6 @@ export default function Home() {
       if (!response.ok) throw new Error("Failed to fetch events.");
 
       const data = await response.json();
-      // Ensure date is sorted (in-memory sort to avoid Mongoose index issues)
       const sortedEvents = data.sort(
         (a: EventData, b: EventData) =>
           new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -736,7 +662,7 @@ export default function Home() {
         message: `Could not load events: ${error.message}`,
       });
     } finally {
-      setLoading(false); // Make sure general loading state is also reset
+      setLoading(false);
       setFetchLoading(false);
     }
   }, []);
@@ -754,15 +680,14 @@ export default function Home() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // --- CRUD Logic: Update ---
   const resetForm = useCallback(() => {
     setFormData(initialFormData);
-    setIsFormVisible(false); // Hide Modal on cancel/reset
+    setIsFormVisible(false); // Hide form on reset
   }, []);
 
-  // This handler opens the modal and sets the data for editing
+  // Handler to set form data for editing and show the form
   const handleEdit = useCallback((eventToEdit: EventData) => {
-    // Format the date for the datetime-local input (YYYY-MM-DDTHH:mm)
+    // Format date to 'YYYY-MM-DDTHH:mm' for datetime-local input
     const dateObj = new Date(eventToEdit.date);
     const formattedDate = dateObj.toISOString().substring(0, 16);
 
@@ -774,23 +699,33 @@ export default function Home() {
       category: eventToEdit.category.name,
       city: eventToEdit.city.name,
       location: eventToEdit.location.name,
-      image: eventToEdit.image,
+      image: eventToEdit.image || "",
     });
-    setIsFormVisible(true); // Show Modal when editing
+    setIsFormVisible(true); // Show form for editing
+    // Simulate redirection: Scroll to the form area after setting data
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const handleCreateNew = useCallback(() => {
+      resetForm(); // Ensure form is cleared
+      setIsFormVisible(true); // Show form for creating
+      window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [resetForm]);
+
+
+  // --- CRUD Logic: Create/Update ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setFeedback(null);
 
-    // This is always a PUT (update) since the creation path is removed
-    const method = "PUT";
-    const url = `${MONGODB_API_ENDPOINT}/${formData._id}`;
+    const method = isEditing ? "PUT" : "POST";
+    const url = isEditing
+      ? `${MONGODB_API_ENDPOINT}/${formData._id}`
+      : MONGODB_API_ENDPOINT;
 
     const requestData = {
       ...formData,
-      // Ensure ISO format for Mongoose
       date: new Date(formData.date).toISOString(),
     };
 
@@ -809,9 +744,12 @@ export default function Home() {
       }
 
       await response.json();
-      setFeedback({ type: "success", message: `Event updated successfully!` });
-      resetForm(); // Hides Modal and resets form data
-      fetchEvents(); // Re-fetch to update the list
+      setFeedback({
+        type: "success",
+        message: `Event ${isEditing ? "updated" : "created"} successfully!`,
+      });
+      resetForm(); // This now hides the form
+      fetchEvents();
     } catch (error: any) {
       console.error("API Error:", error);
       setFeedback({
@@ -823,25 +761,18 @@ export default function Home() {
     }
   };
 
-  // --- CRUD Logic: Delete ---
-  const handleDelete = async (id: string) => {
-    // NOTE: Using window.confirm for simplicity, should be replaced by a custom modal
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        "Are you sure you want to delete this event? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
-
+  // --- CRUD Logic: Delete (called directly from dropdown) ---
+  const handleDelete = async (event: EventData) => {
     setLoading(true);
     setFeedback(null);
 
     try {
-      const response = await fetch(`${MONGODB_API_ENDPOINT}/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${MONGODB_API_ENDPOINT}/${event._id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -850,8 +781,11 @@ export default function Home() {
         );
       }
 
-      setFeedback({ type: "success", message: "Event deleted successfully." });
+      setFeedback({ type: "success", message: `Event '${event.title}' deleted successfully.` });
       fetchEvents();
+      if (isEditing && formData._id === event._id) {
+          resetForm(); // Hide form if the event being edited was just deleted
+      }
     } catch (error: any) {
       console.error("Delete Error:", error);
       setFeedback({
@@ -862,8 +796,8 @@ export default function Home() {
       setLoading(false);
     }
   };
-
-  // --- Geolocation Logic with Real API Placeholder ---
+  
+  // --- Geolocation Logic (Kept as is) ---
   const handleDetectCity = useCallback(async () => {
     if (!navigator.geolocation) {
       setCityError("Geolocation is not supported by your browser.");
@@ -922,8 +856,8 @@ export default function Home() {
       }
     );
   }, []);
-  // -------------------------
 
+  // Memoized list of events filtered by city and search query
   const eventsInMyCity = useMemo(
     () =>
       events.filter(
@@ -939,21 +873,11 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 text-black font-sans">
+      {/* RENDER THE FEEDBACK MESSAGE / TOAST */}
       <FeedbackMessage feedback={feedback} onClose={() => setFeedback(null)} />
+      {/* DeleteConfirmationModal removed */}
 
-      {/* --- Event Form Modal (Only visible when isFormVisible is true) --- */}
-      {isFormVisible && (
-        <EventFormModal
-          // isEditing is implicitly true since creation path is removed
-          isEditing={isEditing}
-          formData={formData}
-          loading={loading}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          onClose={resetForm} // Close button resets the form and hides the modal
-        />
-      )}
-
+      {/* Header with Background and Search */}
       <div
         className="w-full rounded-b-xl pb-16"
         style={{
@@ -968,7 +892,31 @@ export default function Home() {
       </div>
 
       <Container>
-        {/* Events in My City */}
+          {/* Create New Button - Always visible, triggers the form */}
+        {!isFormVisible && (
+            <div className="text-center pt-10">
+                <button
+                    onClick={handleCreateNew}
+                    className="flex items-center justify-center mx-auto py-3 px-8 rounded-full bg-purple-600 text-white font-bold text-lg shadow-md hover:bg-purple-700 transition-all duration-300"
+                    style={{ boxShadow: "2px 2px 0px #4c1d95" }}
+                >
+                    <PlusCircleIcon className="h-6 w-6 mr-2" />
+                    Post a New Event
+                </button>
+            </div>
+        )}
+
+        {/* --- Create/Edit Event Form (Conditional Rendering) --- */}
+        <EventCrudForm
+          formData={formData}
+          loading={loading}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          resetForm={resetForm}
+          isVisible={isFormVisible} // Pass visibility state
+        />
+        
+        {/* --- Events in My City Section --- */}
         <section className="py-12 md:py-16 pt-4">
           <div className="flex items-center flex-wrap gap-4 mb-8">
             <h2 className="text-3xl sm:text-4xl font-extrabold">
@@ -1013,8 +961,12 @@ export default function Home() {
           {cityError && <p className="text-red-500 mb-4">{cityError}</p>}
 
           {fetchLoading && (
-            <div className="text-center p-8 text-lg text-purple-600 font-medium">
-              Loading events from API...
+            <div
+              className="text-center p-8 text-lg text-purple-600 font-medium flex items-center justify-center space-x-2 bg-white rounded-lg shadow-sm border border-black"
+              style={{ boxShadow: "2px 2px 1px rgb(0, 0, 0)" }}
+            >
+              <Icon icon="mdi:loading" className="h-6 w-6 animate-spin" />
+              <span>Loading events from API...</span>
             </div>
           )}
 
@@ -1025,7 +977,7 @@ export default function Home() {
                   key={event._id}
                   event={event}
                   onEdit={handleEdit}
-                  onDelete={handleDelete}
+                  onDelete={handleDelete} // Use the direct delete handler
                   loading={loading}
                 />
               ))}
@@ -1043,7 +995,7 @@ export default function Home() {
           )}
         </section>
 
-        {/* All Events */}
+        {/* --- All Events Section --- */}
         <section className="py-12 md:py-16">
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-8">
             All Upcoming <span className="text-purple-600">Events</span>
@@ -1055,18 +1007,20 @@ export default function Home() {
                   key={event._id}
                   event={event}
                   onEdit={handleEdit}
-                  onDelete={handleDelete}
+                  onDelete={handleDelete} // Use the direct delete handler
                   loading={loading}
                 />
               ))}
             </div>
           ) : (
-            <p
-              className="text-center text-gray-500 text-lg p-8 bg-white rounded-lg shadow-sm border border-black"
-              style={{ boxShadow: "2px 2px 1px rgb(0, 0, 0)" }}
-            >
-              No upcoming events at the moment. Check back soon!
-            </p>
+            !fetchLoading && (
+              <p
+                className="text-center text-gray-500 text-lg p-8 bg-white rounded-lg shadow-sm border border-black"
+                style={{ boxShadow: "2px 2px 1px rgb(0, 0, 0)" }}
+              >
+                No upcoming events at the moment. Check back soon!
+              </p>
+            )
           )}
         </section>
       </Container>
@@ -1086,11 +1040,10 @@ const Header = ({
       <div
         className="w-full max-w-2xl text-center rounded-3xl p-16 shadow-lg my-auto shadow-purple-200"
         style={{
-          // Updated to use a blur effect for a "frosted glass" appearance
           backgroundColor: "rgba(237, 233, 254, 0.7)",
           border: "1px solid rgb(0, 0, 0)",
           boxShadow: "2px 2px 1px rgb(0, 0, 0)",
-          backdropFilter: "blur(8px)", // Increased blur strength
+          backdropFilter: "blur(8px)",
         }}
       >
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 leading-relaxed max-w-md mx-auto">
@@ -1109,8 +1062,8 @@ const Header = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full py-3 pl-12 pr-4 bg-white rounded-full border border-gray-200 shadow-sm transition-all duration-200 
-                        focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2
-                        hover:ring-2 hover:ring-purple-400 hover:ring-offset-2"
+            focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2
+            hover:ring-2 hover:ring-purple-400 hover:ring-offset-2"
           />
         </div>
       </div>

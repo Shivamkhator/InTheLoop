@@ -10,12 +10,6 @@ import * as NodeRedis from "@/lib/redis";
 
 const CACHE_KEY = "all_upcoming_events";
 
-// ---------------- DELETE (DELETE) with Cache Invalidation ----------------
-
-/**
- * Handles DELETE requests to remove a specific Event document.
- * URL: /api/events/[id]
- */
 export async function DELETE(req, { params }) {
   const NodeRedisClient = NodeRedis.default;
   try {

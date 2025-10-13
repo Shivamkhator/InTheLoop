@@ -2,111 +2,226 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 
-// --- Custom Icon Components (Replacing external Icon dependency) ---
-const PlusCircleIcon = (props) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 8v8" />
-    <path d="M8 12h8" />
-  </svg>
-);
-const MapPinIcon = (props) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
-const EditIcon = (props) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-  </svg>
-);
-const TrashIcon = (props) => (
-  <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M3 6h18" />
-    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-  </svg>
-);
 
-// --- Utility Components ---
-const FeedbackMessage = ({ feedback, onClose }) => {
-  if (!feedback) return null;
-  const bgColor =
-    feedback.type === "success"
-      ? "bg-green-100 border-green-500 text-green-700"
-      : "bg-red-100 border-red-500 text-red-700";
-  const icon = feedback.type === "success" ? "✅" : "❌";
+const IconMap: {
+  [key: string]: {
+    viewBox: string;
+    paths: { d: string; type?: "circle" | "path" }[];
+  };
+} = {
+  plusCircle: {
+    viewBox: "0 0 24 24",
+    paths: [
+      { d: "M12 8v8", type: "path" },
+      { d: "M8 12h8", type: "path" },
+      { d: "M12 12m-10 0a10 10 0 1 0 20 0a10 10 0 1 0 -20 0", type: "path" }, // Simplified circle drawing
+    ],
+  },
+  mapPin: {
+    viewBox: "0 0 24 24",
+    paths: [
+      { d: "M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z", type: "path" },
+      { d: "M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0", type: "path" }, // Simplified circle drawing
+    ],
+  },
+  edit: {
+    viewBox: "0 0 24 24",
+    paths: [
+      {
+        d: "M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z",
+        type: "path",
+      },
+    ],
+  },
+  trash: {
+    viewBox: "0 0 24 24",
+    paths: [
+      { d: "M3 6h18", type: "path" },
+      { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", type: "path" },
+      { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", type: "path" },
+    ],
+  },
+  checkCircle: {
+    viewBox: "0 0 24 24",
+    paths: [
+      { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14", type: "path" },
+      { d: "M22 4L12 14.01l-3-3", type: "path" },
+    ],
+  },
+  alertTriangle: {
+    viewBox: "0 0 24 24",
+    paths: [
+      {
+        d: "M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h18.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z",
+        type: "path",
+      },
+      { d: "M12 9v4", type: "path" },
+      { d: "M12 17h.01", type: "path" },
+    ],
+  },
+};
+
+// --- Single Dynamic Icon Component (Simulating Iconify Usage) ---
+interface DynamicIconProps extends React.SVGProps<SVGSVGElement> {
+  iconName: keyof typeof IconMap; // Enforce valid icon names
+}
+
+const DynamicIcon = ({ iconName, ...props }: DynamicIconProps) => {
+  const iconData = IconMap[iconName];
+
+  if (!iconData) {
+    console.error(`Icon "${iconName}" not found in map.`);
+    return null;
+  }
+
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox={iconData.viewBox}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {iconData.paths.map((pathData, index) =>
+        pathData.type === "circle" ? (
+          <circle key={index} cx="12" cy="12" r="10" />
+        ) : (
+          <path key={index} d={pathData.d} />
+        )
+      )}
+    </svg>
+  );
+};
+
+// ====================================================================
+// --- Toast Notification Implementation (NEW) ---
+// ====================================================================
+
+interface ToastItem {
+  id: number;
+  message: string;
+  type: "success" | "error";
+}
+
+const TOAST_DURATION = 4000; // 4 seconds
+
+const ToastContext = React.createContext<
+  ((message: string, type: "success" | "error") => void) | undefined
+>(undefined);
+
+// A custom hook to use the toast function
+const useToast = () => {
+  const context = React.useContext(ToastContext);
+  if (context === undefined) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  return context;
+};
+
+// The component to display a single toast
+const Toast = ({
+  toast,
+  onClose,
+}: {
+  toast: ToastItem;
+  onClose: () => void;
+}) => {
+  const baseClasses =
+    "p-4 rounded-lg shadow-xl mb-4 max-w-sm w-full flex items-center transform transition-all duration-300 ease-out";
+  const successClasses = "bg-green-500 text-white";
+  const errorClasses = "bg-red-500 text-white";
+  const iconName = toast.type === "success" ? "checkCircle" : "alertTriangle";
+
+  useEffect(() => {
+    const timer = setTimeout(onClose, TOAST_DURATION);
+    return () => clearTimeout(timer);
+  }, [onClose]);
 
   return (
     <div
-      className={`fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex justify-center items-start pt-20 transition-opacity duration-300`}
+      className={`${baseClasses} ${
+        toast.type === "success" ? successClasses : errorClasses
+      } animate-slide-in`}
+      style={{
+        animationName: "slideIn",
+        animationDuration: "0.3s",
+        animationTimingFunction: "ease-out",
+      }}
     >
-      <div
-        className={`p-5 rounded-xl border-l-4 ${bgColor} shadow-2xl w-full max-w-sm mx-4 transform transition-transform duration-300 scale-100`}
-      >
-        <div className="flex justify-between items-start">
-          <div className="flex items-center">
-            <span className="text-xl mr-3">{icon}</span>
-            <p className="font-medium">{feedback.message}</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 font-bold text-lg leading-none p-1"
-          >
-            &times;
-          </button>
-        </div>
-      </div>
+      <DynamicIcon iconName={iconName} className="h-6 w-6 mr-3 flex-shrink-0" />
+      <p className="font-medium flex-grow">{toast.message}</p>
+      <button onClick={onClose} className="ml-4 p-1 rounded-full hover:bg-white/20 transition">
+        <svg
+          className="h-5 w-5"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
     </div>
   );
 };
 
-// --- Interfaces ---
+// The main container and provider for toasts
+const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  const addToast = useCallback((message: string, type: "success" | "error") => {
+    const id = Date.now();
+    const newToast = { id, message, type };
+    setToasts((prev) => [...prev, newToast]);
+  }, []);
+
+  const removeToast = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
+  return (
+    <ToastContext.Provider value={addToast}>
+      {children}
+      <div className="fixed bottom-0 right-0 z-50 p-4 sm:p-6 space-y-2 pointer-events-none">
+        {/* Keyframes for the slide-in animation */}
+        <style jsx global>{`
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(100%);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+        `}</style>
+        {toasts.map((toast) => (
+          <Toast
+            key={toast.id}
+            toast={toast}
+            onClose={() => removeToast(toast.id)}
+          />
+        ))}
+      </div>
+    </ToastContext.Provider>
+  );
+};
+
+
+// ====================================================================
+// --- Interfaces (Kept as-is) ---
+// ====================================================================
+
 interface EventData {
   _id: string;
   title: string;
@@ -141,16 +256,19 @@ const initialFormData: FormData = {
   image: "",
 };
 
-// --- Main Component ---
-export default function EventManagementApp() {
+
+// ====================================================================
+// --- Main Component (Modified to use Toast) ---
+// ====================================================================
+
+function EventManagement() {
   const [events, setEvents] = useState<EventData[]>([]);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [loading, setLoading] = useState<boolean>(false);
   const [fetchLoading, setFetchLoading] = useState<boolean>(true);
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
+  
+  // Use the new Toast hook
+  const showToast = useToast();
 
   const isEditing = !!formData._id;
   const MONGODB_API_ENDPOINT = "/api/events";
@@ -166,20 +284,17 @@ export default function EventManagementApp() {
       setEvents(data);
     } catch (error: any) {
       console.error("Fetch Error:", error);
-      setFeedback({
-        type: "error",
-        message: `Could not load events: ${error.message}`,
-      });
+      showToast("Could not load events. Server error.", "error");
     } finally {
       setFetchLoading(false);
     }
-  }, []);
+  }, [showToast]);
 
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
 
-  // --- Form Handlers ---
+  // --- Form Handlers (Kept as-is) ---
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -212,11 +327,10 @@ export default function EventManagementApp() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // --- CRUD Operations ---
+  // --- CRUD Operations (Modified to use Toast) ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setFeedback(null);
 
     const method = isEditing ? "PUT" : "POST";
     const url = isEditing
@@ -244,18 +358,15 @@ export default function EventManagementApp() {
       }
 
       await response.json(); // Wait for the response (saved data)
-      setFeedback({
-        type: "success",
-        message: `Event ${isEditing ? "updated" : "created"} successfully!`,
-      });
+      showToast(
+        `Event ${isEditing ? "updated" : "created"} successfully!`,
+        "success"
+      );
       resetForm();
       fetchEvents(); // Re-fetch to update the list
     } catch (error: any) {
       console.error("API Error:", error);
-      setFeedback({
-        type: "error",
-        message: `Operation failed: ${error.message}`,
-      });
+      showToast(`Operation failed: ${error.message}`, "error");
     } finally {
       setLoading(false);
     }
@@ -264,7 +375,6 @@ export default function EventManagementApp() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this event?")) return;
     setLoading(true);
-    setFeedback(null);
 
     try {
       const response = await fetch(`${MONGODB_API_ENDPOINT}/${id}`, {
@@ -278,14 +388,11 @@ export default function EventManagementApp() {
         );
       }
 
-      setFeedback({ type: "success", message: "Event deleted successfully." });
+      showToast("Event deleted successfully.", "success");
       fetchEvents(); // Re-fetch to update the list
     } catch (error: any) {
       console.error("Delete Error:", error);
-      setFeedback({
-        type: "error",
-        message: `Delete failed: ${error.message}`,
-      });
+      showToast(`Delete failed: ${error.message}`, "error");
     } finally {
       setLoading(false);
     }
@@ -299,7 +406,7 @@ export default function EventManagementApp() {
         }
       `}</style>
 
-      <FeedbackMessage feedback={feedback} onClose={() => setFeedback(null)} />
+      {/* REMOVED FeedbackMessage COMPONENT */}
 
       <div className="w-full max-w-4xl mx-auto py-6">
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-8">
@@ -468,9 +575,9 @@ export default function EventManagementApp() {
               ) : (
                 <>
                   {isEditing ? (
-                    <EditIcon className="h-5 w-5 mr-2" />
+                    <DynamicIcon iconName="edit" className="h-5 w-5 mr-2" />
                   ) : (
-                    <PlusCircleIcon className="h-5 w-5 mr-2" />
+                    <DynamicIcon iconName="plusCircle" className="h-5 w-5 mr-2" />
                   )}
                   {isEditing ? "Update Event" : "Create Event"}
                 </>
@@ -546,7 +653,10 @@ export default function EventManagementApp() {
                     {event.description}
                   </p>
                   <p className="mt-2 text-gray-500 text-sm flex items-center">
-                    <MapPinIcon className="h-4 w-4 mr-1 text-purple-500" />
+                    <DynamicIcon
+                      iconName="mapPin"
+                      className="h-4 w-4 mr-1 text-purple-500"
+                    />
                     {event.location.name}, {event.city.name}
                   </p>
                 </div>
@@ -556,7 +666,7 @@ export default function EventManagementApp() {
                     className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition"
                     title="Edit Event"
                   >
-                    <EditIcon className="h-5 w-5" />
+                    <DynamicIcon iconName="edit" className="h-5 w-5" />
                   </button>
                   <button
                     onClick={() => handleDelete(event._id)}
@@ -564,7 +674,7 @@ export default function EventManagementApp() {
                     title="Delete Event"
                     disabled={loading}
                   >
-                    <TrashIcon className="h-5 w-5" />
+                    <DynamicIcon iconName="trash" className="h-5 w-5" />
                   </button>
                 </div>
               </div>
@@ -574,4 +684,12 @@ export default function EventManagementApp() {
       </div>
     </main>
   );
+}
+
+export default function EventManagementApp() {
+    return (
+        <ToastProvider>
+            <EventManagement />
+        </ToastProvider>
+    );
 }
