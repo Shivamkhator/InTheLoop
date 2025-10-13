@@ -248,7 +248,7 @@ export const NavbarLogo = () => {
         height={40}
         loading="eager"
       />
-      <span className="font-medium text-black">InTheLoop</span>
+      <span className="text-xl font-medium text-black p-2">InTheLoop</span>
     </a>
   );
 };

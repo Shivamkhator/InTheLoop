@@ -8,7 +8,7 @@ import * as NodeRedis from "@/lib/redis"; // ioredis client
 import { headers } from "next/headers";
 
 // ---CACHE SETTING---
-const CACHE_TTL_SECONDS = 600; // 10 minutes cache duration
+const CACHE_TTL_SECONDS = 20; // 20 seconds cache duration
 const CACHE_KEY = "all_upcoming_events";
 
 // ---------------- GET (READ) with Node/Redis Caching + CDN Headers ----------------

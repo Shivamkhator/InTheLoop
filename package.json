@@ -25,6 +25,7 @@
     "mongoose": "^8.18.2",
     "motion": "^12.23.12",
     "next": "15.5.2",
+    "qrcode.react": "^4.2.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "redis": "^5.8.2",

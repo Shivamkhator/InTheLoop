@@ -33,8 +33,8 @@ export function Header() {
       link: "/",
     },
     {
-      name: "Events",
-      link: "events",
+      name: "Dashboard",
+      link: "dashboard",
     },
     {
       name: "History",
