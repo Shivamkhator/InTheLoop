@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'InTheLoop',
   description: 'A SkyBee Product',
+  icons: {
+    icon: 'https://skybee.vercel.app/InTheLoop.svg',
+  },
 }
 
 export default function RootLayout({

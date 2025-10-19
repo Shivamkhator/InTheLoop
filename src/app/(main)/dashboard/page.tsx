@@ -22,11 +22,11 @@ export default function Dashboard() {
           </p>
             <button
             type="button"
-            onClick={() => window.location.href = "/create"}
+            onClick={() => window.location.href = "/manage"}
             className="flex items-center justify-center py-3 px-6 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all"
             >
             <Icon icon="mdi:plus-circle" className="h-5 w-5 mr-2" />
-            Create New Event
+            Manage Events
             </button>
           </div>
           

@@ -10,10 +10,8 @@ import Location from "@/models/Location";
 import * as NodeRedis from "@/lib/redis";
 
 // ---CACHE SETTING---
-// Keep TTL low for the Redis node cache, as CDN/revalidatePath handles the external caching.
 const CACHE_TTL_SECONDS = 10; 
 const CACHE_KEY = "all_upcoming_events";
-// IMPORTANT: Use the actual client-facing path if this is a route handler
 const EVENTS_PATH = "/api/events"; 
 
 // ---------------- GET (READ) with Node/Redis Caching + CDN Headers ----------------
@@ -29,14 +27,11 @@ export async function GET() {
       return NextResponse.json(JSON.parse(cachedEvents), {
         headers: {
           "X-Cache-Status": "REDIS-HIT",
-          // FIX: Shorten CDN cache (s-maxage) to 1 second. 
-          // This respects revalidatePath immediately. Browser (max-age) is 0.
           "Cache-Control": `public, max-age=0, s-maxage=1, must-revalidate`,
         },
       });
     }
 
-    // 2. CACHE MISS: FETCH FROM DATABASE (SLOW)
     console.log("Fetching from DB (CACHE MISS)");
     await dbConnect();
 
@@ -61,7 +56,6 @@ export async function GET() {
     return NextResponse.json(events, {
       headers: {
         "X-Cache-Status": "DB-FETCH",
-        // FIX: Shorten CDN cache (s-maxage) to 1 second. 
         "Cache-Control": `public, max-age=0, s-maxage=1, must-revalidate`,
       },
     });
@@ -127,7 +121,6 @@ export async function POST(req) {
 }
 
 // ---------------- PUT (UPDATE) with Cache Invalidation ----------------
-// NOTE: This assumes PUT is called via /api/events/[id] and updates the entire document.
 
 export async function PUT(req, { params }) {
   const NodeRedisClient = NodeRedis.default;

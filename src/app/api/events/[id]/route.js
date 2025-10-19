@@ -38,10 +38,6 @@ export async function DELETE(req, { params }) {
 
 // ---------------- PUT (UPDATE) with Cache Invalidation ----------------
 
-/**
- * Handles PUT requests to update a specific Event document.
- * URL: /api/events/[id]
- */
 export async function PUT(req, { params }) {
   const NodeRedisClient = NodeRedis.default;
   try {
@@ -50,7 +46,6 @@ export async function PUT(req, { params }) {
     const body = await req.json();
 
     // 1. Find or Create supporting documents for updates
-    // (This is crucial if the category, city, or location name was changed in the form)
     const category = await Category.findOneAndUpdate(
       { name: body.category },
       { name: body.category, icon: body.icon },
