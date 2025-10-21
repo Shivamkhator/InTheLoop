@@ -9,6 +9,8 @@ import {
   useUser,
 } from '@clerk/nextjs'
 
+import { usePathname } from 'next/navigation';
+
 import {
   Navbar,
   NavBody,
@@ -22,35 +24,55 @@ import {
 } from "@/components/ui/resizable-navbar";
 
 import { AuthButtons } from './AuthButtons';
-
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export function Header() {
-  const { isLoaded, user } = useUser();
-  const navItems = [
+  const { isLoaded, isSignedIn, user } = useUser();
+  const pathname = usePathname();
+
+  const allNavItems = [
     {
       name: "Explore",
       link: "/",
+      requiresAuth: false,
     },
     {
       name: "Dashboard",
-      link: "dashboard",
+      link: "/dashboard",
+      requiresAuth: true,
     },
     {
       name: "History",
-      link: "history",
+      link: "/history",
+      requiresAuth: true,
     },
   ];
+
+  // Filter navigation items based on authentication status
+  const navItems = useMemo(() => {
+    if (!isLoaded) {
+      // While loading, show only public items
+      return allNavItems.filter(item => !item.requiresAuth);
+    }
+    
+    if (isSignedIn) {
+      // Show all items when signed in
+      return allNavItems;
+    }
+    
+    // Show only public items when not signed in
+    return allNavItems.filter(item => !item.requiresAuth);
+  }, [isLoaded, isSignedIn]);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="sticky w-full top-4 z-999999">
+    <div className="sticky w-full top-4 z-50">
       <Navbar>
         {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
-          <NavItems items={navItems} />
+          <NavItems items={navItems} currentPath={pathname} />
           <AuthButtons />
         </NavBody>
 
@@ -64,8 +86,8 @@ export function Header() {
               <MobileNavToggle
                 isOpen={isMobileMenuOpen}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              /></div>
-
+              />
+            </div>
           </MobileNavHeader>
 
           <MobileNavMenu
@@ -77,7 +99,7 @@ export function Header() {
                 key={`mobile-link-${idx}`}
                 href={item.link}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-neutral-600 dark:text-neutral-300 flex w-full justify-center"
+                className="text-black flex w-full justify-center font-medium hover:text-purple-600 transition-colors"
               >
                 <span>{item.name}</span>
               </a>
@@ -97,7 +119,6 @@ export function Header() {
                     Already have an account? Login
                   </button>
                 </SignInButton>
-
               </SignedOut>
               <SignedIn>
                 <SignOutButton>
@@ -112,9 +133,7 @@ export function Header() {
             </div>
           </MobileNavMenu>
         </MobileNav>
-
       </Navbar>
-
     </div>
   );
 }

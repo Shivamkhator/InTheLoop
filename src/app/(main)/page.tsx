@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
+import Link from "next/link";
 import { Icon } from "@iconify/react";
+import { useUser, SignInButton } from "@clerk/nextjs";
 
 // ---------------- UTILITY ICON COMPONENTS ----------------
 const MapPinIcon = ({ className = "h-5 w-5" }) => (
@@ -25,8 +27,10 @@ const InformationIcon = ({ className = "h-5 w-5" }) => (
 const FilterIcon = ({ className = "h-5 w-5" }) => (
   <Icon icon="mdi:filter" className={className} />
 );
+const LockIcon = ({ className = "h-5 w-5" }) => (
+  <Icon icon="mdi:lock" className={className} />
+);
 
-// ---------------- INTERFACES ----------------
 interface City {
   _id: string;
   name: string;
@@ -92,7 +96,6 @@ const getIcon = (category: string) => {
   }
 };
 
-// ---------------- REUSABLE CONTAINER ----------------
 const Container: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     {children}
@@ -118,9 +121,8 @@ const FeedbackMessage: React.FC<{
 
   return (
     <div
-      className={`${baseClasses} ${
-        feedback.type === "success" ? successClasses : errorClasses
-      }`}
+      className={`${baseClasses} ${feedback.type === "success" ? successClasses : errorClasses
+        }`}
       style={{ animation: 'slideUp 0.3s ease-out forwards' }}
     >
       <div className="flex items-center space-x-3">
@@ -160,6 +162,8 @@ const EventCard = memo(
   }: {
     event: EventData;
   }) => {
+    const { isSignedIn, isLoaded } = useUser();
+
     const getGoogleMapsUrl = (location: string, city: string) => {
       const encodedLocation = encodeURIComponent(`${location}, ${city}`);
       return `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
@@ -193,11 +197,6 @@ const EventCard = memo(
       hour: "2-digit",
       minute: "2-digit",
     });
-    
-    const handleMoreDetails = () => {
-        alert(`Redirecting to details page for event: "${event.title}" (ID: ${event._id})`);
-        console.log(`Redirecting to details for ID: ${event._id}`);
-    };
 
     return (
       <div
@@ -262,15 +261,31 @@ const EventCard = memo(
             <span>Add to Calendar</span>
           </a>
         </div>
-        
-        <button
-            onClick={handleMoreDetails}
-            className="mt-4 w-full flex items-center justify-center py-2 px-4 rounded-lg bg-purple-600 text-white font-bold 
-            shadow-md hover:bg-purple-700 transition-colors duration-200 border border-purple-800"
-        >
-            <InformationIcon className="h-5 w-5 mr-2" />
-            More Details
-        </button>
+
+        {isLoaded && (
+          <>
+            {isSignedIn ? (
+              <Link
+                href={`/events/${event._id}`}
+                className="mt-4 w-full flex items-center justify-center py-2 px-4 rounded-lg bg-purple-600 text-white font-bold 
+                  shadow-md hover:bg-purple-700 transition-colors duration-200 border border-purple-800"
+              >
+                <InformationIcon className="h-5 w-5 mr-2" />
+                More Details
+              </Link>
+            ) : (
+              <SignInButton>
+                <button
+                  className="mt-4 w-full flex items-center justify-center py-2 px-4 rounded-lg bg-gray-600 text-white font-bold 
+                    shadow-md hover:bg-gray-700 transition-colors duration-200 border border-gray-800"
+                >
+                  <LockIcon className="h-5 w-5 mr-2" />
+                  Sign In to View Details
+                </button>
+              </SignInButton>
+            )}
+          </>
+        )}
       </div>
     );
   }
@@ -300,18 +315,18 @@ const Header = ({
         }}
       >
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight max-w-md mx-auto drop-shadow-lg">
-          Discover, Explore, <span className="text-purple-900">Book</span>.
+          Discover, Explore, <span className="text-purple-900">Book</span>
         </h1>
 
-        <div className="relative mt-8 w-full max-w-md mx-auto text-gray-900">
-          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 h-5 w-5" />
+        <div className="relative mt-8 w-full max-w-md mx-auto text-black">
+          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-black h-6 w-6 font-bold" />
           <input
             type="text"
             placeholder="Search title, description, or location"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full py-3 pl-12 pr-4 bg-white/20 backdrop-blur-md rounded-full border-2 border-white/40
-            focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-400 focus:bg-white/30 transition-all duration-200 text-gray-900 font-medium placeholder-gray-600"
+            className="w-full py-3 pl-12 pr-4 bg-white/20 backdrop-blur-md rounded-full border-2 border-white/60
+            focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-400 transition-all duration-200 text-black font-semibold placeholder-black"
             style={{
               boxShadow: "4px 4px 0px 0px rgba(76, 29, 149, 0.5)"
             }}
@@ -319,13 +334,13 @@ const Header = ({
         </div>
 
         <div className="relative mt-4 w-full max-w-md mx-auto">
-          <FilterIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 h-5 w-5" />
+          <FilterIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-black h-6 w-6 font-bold" />
           <input
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="w-full py-3 pl-12 pr-4 bg-white/20 backdrop-blur-md rounded-full border-2 border-white/40
-            focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-400 focus:bg-white/30 transition-all duration-200 text-gray-900 font-medium"
+            className="w-full py-3  text-black  pl-12 pr-4 bg-white/20 backdrop-blur-md rounded-full border-2 border-white/60
+            focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-400 transition-all duration-200 font-semibold"
             style={{
               colorScheme: "dark",
               boxShadow: "4px 4px 0px 0px rgba(76, 29, 149, 0.5)"
@@ -455,7 +470,7 @@ export default function EventCrudManager() {
 
   const filterEvents = useCallback((eventsList: EventData[]) => {
     return eventsList.filter((event) => {
-      const matchesSearch = 
+      const matchesSearch =
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.location.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -495,8 +510,8 @@ export default function EventCrudManager() {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <Header 
-          searchQuery={searchQuery} 
+        <Header
+          searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           dateFilter={dateFilter}
           setDateFilter={setDateFilter}
@@ -504,12 +519,12 @@ export default function EventCrudManager() {
       </div>
 
       <Container>
-        <section className="py-12 md:py-16 pt-4"> 
+        <section className="py-12 md:py-16 pt-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <h2 className="text-3xl sm:text-4xl font-extrabold flex flex-col sm:flex-row sm:items-end">
-              Upcoming Events in{" "}
+              Events Near{" "}
               <span className="text-purple-600 flex gap-2 sm:gap-4 items-center mt-1 sm:mt-0 sm:ml-2">
-                {userCity || "Your City"}
+                {userCity || "You"}
                 <button
                   onClick={handleDetectCity}
                   disabled={loadingCity}
@@ -578,7 +593,7 @@ export default function EventCrudManager() {
                 style={{ boxShadow: "4px 4px 0px 0px #1a202c" }}
               >
                 <p className="mb-2">
-                  <Icon icon="mdi:calendar-search" className="inline h-8 w-8 text-purple-500" />
+                  <Icon icon="mdi:calendar-search" className="inline h-8 w-8 text-black" />
                 </p>
                 <p>
                   No events in{" "}
@@ -591,7 +606,7 @@ export default function EventCrudManager() {
 
         <section className="py-12 md:py-16">
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-8">
-            All Upcoming <span className="text-purple-600">Events</span>
+            More <span className="text-purple-600">Events</span>
           </h2>
           {allFilteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
