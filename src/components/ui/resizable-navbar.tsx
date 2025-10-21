@@ -29,7 +29,7 @@ interface NavItemsProps {
     }[];
     className?: string;
     onItemClick?: () => void;
-    currentPath: string; 
+    currentPath: string;
 }
 
 interface MobileNavProps {
@@ -60,14 +60,13 @@ const GLASS_STYLE_BASE = {
 
 const GLASS_STYLE_NAVBAR = {
     ...GLASS_STYLE_BASE,
-    backgroundColor: "rgba(255, 255, 255, 0.15)", // 15% opacity (Main bar)
+    backgroundColor: "rgba(255, 255, 255, 0.50)",
 };
 
 const GLASS_STYLE_MENU_DROPDOWN = {
     ...GLASS_STYLE_BASE,
-    backgroundColor: "rgba(255, 255, 255, 0.90)", // 90% opacity (Dropdown for readability)
+    backgroundColor: "rgba(255, 255, 255, 0.90)",
 };
-// ----------------------------------------------------------------
 
 export const Navbar = ({ children, className }: NavbarProps) => {
     const ref = useRef<HTMLDivElement>(null);
@@ -127,12 +126,9 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
     );
 };
 
-// ---------------------- FIXED NAVITEMS COMPONENT ----------------------
 export const NavItems = ({ items, className, onItemClick, currentPath }: NavItemsProps) => {
     const [hovered, setHovered] = useState<number | null>(null);
-    
-    // FIX: Ensure currentPath is a string. If it's undefined, default to '/' 
-    // or an empty string, though '/' is better for initial Next.js load.
+
     const safeCurrentPath = currentPath || '/';
 
     return (
@@ -144,11 +140,11 @@ export const NavItems = ({ items, className, onItemClick, currentPath }: NavItem
             )}
         >
             {items.map((item, idx) => {
-                const linkPath = item.link || ''; 
+                const linkPath = item.link || '';
 
                 // Use safeCurrentPath for all comparisons/methods
-                const isActive = (safeCurrentPath === linkPath) || 
-                                 (linkPath !== '/' && safeCurrentPath.startsWith(linkPath));
+                const isActive = (safeCurrentPath === linkPath) ||
+                    (linkPath !== '/' && safeCurrentPath.startsWith(linkPath));
 
                 return (
                     <a
@@ -156,17 +152,17 @@ export const NavItems = ({ items, className, onItemClick, currentPath }: NavItem
                         onClick={onItemClick}
                         className={cn(
                             "relative px-4 py-2 text-black transition-colors duration-300",
-                            isActive && "font-extrabold text-purple-700", 
+                            isActive && "font-extrabold text-purple-700",
                         )}
                         key={`link-${idx}`}
-                        href={linkPath} 
+                        href={linkPath}
                     >
                         {(hovered === idx || isActive) && (
                             <motion.div
                                 layoutId="hovered"
                                 className={cn(
                                     "absolute inset-0 h-full w-full rounded-full",
-                                    isActive ? "bg-purple-300/60" : "bg-blue-200" 
+                                    isActive ? "bg-purple-300" : "bg-blue-200"
                                 )}
                                 style={{ zIndex: 1 }}
                             />
@@ -178,7 +174,6 @@ export const NavItems = ({ items, className, onItemClick, currentPath }: NavItem
         </motion.div>
     );
 };
-// --------------------------------------------------------------------
 
 export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
     return (
@@ -237,7 +232,7 @@ export const MobileNavMenu = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     style={{
-                        ...GLASS_STYLE_MENU_DROPDOWN, 
+                        ...GLASS_STYLE_MENU_DROPDOWN,
                     }}
                     exit={{ opacity: 0 }}
                     className={cn(

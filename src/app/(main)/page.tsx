@@ -235,9 +235,6 @@ const EventCard = memo(
           </div>
         </div>
 
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow leading-relaxed">
-          {event.description}
-        </p>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 pt-3 border-t border-gray-100 mt-auto">
           <a
@@ -291,7 +288,10 @@ const EventCard = memo(
   }
 );
 
+
 // ---------------- HEADER COMPONENT ----------------
+
+
 const Header = ({
   searchQuery,
   setSearchQuery,
@@ -304,65 +304,83 @@ const Header = ({
   setDateFilter: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   return (
-    <header className="flex flex-col items-center justify-center pt-24 pb-12 font-sans px-4 sm:px-6">
-      <div
-        className="w-full max-w-xl text-center rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl my-auto"
-        style={{
-          backgroundColor: "rgba(255, 255, 255, 0.15)",
-          border: "1px solid rgba(255, 255, 255, 0.3)",
-          boxShadow: "6px 6px 0px 0px rgba(76, 29, 149, 0.5)",
-          backdropFilter: "blur(12px)",
-        }}
-      >
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight max-w-md mx-auto drop-shadow-lg">
-          Discover, Explore, <span className="text-purple-900">Book</span>
+    <header className="w-full flex justify-center pt-12 sm:pt-16 pb-8 sm:pb-12 font-sans mb-12 sm:mb-8 ">
+      <div className="w-full max-w-4xl text-center">
+        
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black leading-tight mb-4 sm:mb-6">
+          Ready to Get <span className="text-purple-700">InTheLoop</span>?
         </h1>
+        <p className="text-base sm:text-lg text-gray-500 mb-8 sm:mb-10 max-w-2xl mx-auto">
+            Discover a loop of exciting events
+        </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-4 max-w-4xl mx-auto items-center">
+          
+          {/* Search Input: Primary action */}
+          <div className="relative flex-1 w-full">
+            <label htmlFor="search-input" className="sr-only">Search Events</label>
+            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-500 h-5 w-5 sm:h-6 sm:w-6" />
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Search events and locations... "
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              // Branded shadow and focus
+              className="w-full py-3.5 sm:py-4 pl-12 pr-4 bg-white border-2 border-gray-900 rounded-xl
+              text-gray-800 placeholder-gray-500 transition-all duration-200
+              focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-600 
+              shadow-lg hover:shadow-xl"
+              style={{
+                boxShadow: "4px 4px 0px 0px #1a202c",
+              }}
+            />
+          </div>
 
-        <div className="relative mt-8 w-full max-w-md mx-auto text-black">
-          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-black h-6 w-6 font-bold" />
-          <input
-            type="text"
-            placeholder="Search title, description, or location"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full py-3 pl-12 pr-4 bg-white/20 backdrop-blur-md rounded-full border-2 border-white/60
-            focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-400 transition-all duration-200 text-black font-semibold placeholder-black"
-            style={{
-              boxShadow: "4px 4px 0px 0px rgba(76, 29, 149, 0.5)"
-            }}
-          />
+          <div className="relative w-full sm:w-64 flex-shrink-0"> 
+            <div 
+                className="relative flex items-center w-full bg-white border-2 border-gray-900 rounded-xl shadow-lg"
+                style={{
+                    boxShadow: "4px 4px 0px 0px #1a202c",
+                }}
+            >
+                <CalendarPlusIcon className="absolute left-4 text-purple-500 h-5 w-5 sm:h-6 sm:w-6 pointer-events-none" />
+                <input
+                  id="date-filter"
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="w-full py-3.5 sm:py-4 pl-12 pr-12 bg-transparent text-lg text-gray-800 
+                  placeholder-gray-500 transition-all duration-200 appearance-none
+                  focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-600 
+                  rounded-xl"
+                  title="Filter by Date"
+                  style={{
+                    colorScheme: "light"
+                  }}
+                />
+            </div>
+          </div>
         </div>
 
-        <div className="relative mt-4 w-full max-w-md mx-auto">
-          <FilterIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-black h-6 w-6 font-bold" />
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="w-full py-3  text-black  pl-12 pr-4 bg-white/20 backdrop-blur-md rounded-full border-2 border-white/60
-            focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-400 transition-all duration-200 font-semibold"
-            style={{
-              colorScheme: "dark",
-              boxShadow: "4px 4px 0px 0px rgba(76, 29, 149, 0.5)"
-            }}
-          />
-        </div>
-
-        <div className="mt-4 h-10 flex items-center justify-center">
-          {(searchQuery || dateFilter) && (
+        {(searchQuery || dateFilter) && (
+          <div className="mt-5 sm:mt-6 flex items-center justify-center">
             <button
               onClick={() => {
                 setSearchQuery("");
                 setDateFilter("");
               }}
-              className="flex items-center justify-center gap-2 px-6 py-2 bg-red-500 text-white rounded-full 
-              hover:bg-red-600 transition-colors duration-200 shadow-lg font-medium"
+              className="flex items-center justify-center gap-2 px-5 py-2 text-sm 
+              text-red-700 border-2 border-red-700 rounded-full bg-white hover:bg-red-50 transition-colors 
+              duration-200 font-semibold"
+              style={{
+                boxShadow: "2px 2px 0px 0px #b91c1c", // Subtle shadow for the button
+              }}
             >
-              <CloseIcon className="h-5 w-5" />
+              <CloseIcon className="h-4 w-4" />
               Clear All Filters
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </header>
   );
@@ -497,26 +515,16 @@ export default function EventCrudManager() {
   }, [events, filterEvents]);
 
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+    <main className="min-h-screen text-gray-900 font-sans">
       <FeedbackMessage feedback={feedback} onClose={() => setFeedback(null)} />
 
-      <div
-        className="w-full rounded-xl pb-16"
-        style={{
-          backgroundImage:
-            "url('https://thumbs.dreamstime.com/b/colorful-nightclub-party-diverse-crowd-dancing-vibrant-silhouettes-group-people-surrounded-lights-festive-330803438.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
+      
         <Header
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           dateFilter={dateFilter}
           setDateFilter={setDateFilter}
         />
-      </div>
 
       <Container>
         <section className="py-12 md:py-16 pt-4">
