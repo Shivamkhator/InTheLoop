@@ -5,6 +5,13 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { useUser, SignInButton } from "@clerk/nextjs";
 
+// Import the WarpBackground component
+import dynamic from "next/dynamic";
+const WarpBackground = dynamic(
+  () =>
+    import("@/components/ui/warp-background").then((mod) => mod.WarpBackground),
+  { ssr: false }
+);
 // ---------------- UTILITY ICON COMPONENTS ----------------
 const MapPinIcon = ({ className = "h-5 w-5" }) => (
   <Icon icon="mdi:map-marker" className={className} />
@@ -121,9 +128,10 @@ const FeedbackMessage: React.FC<{
 
   return (
     <div
-      className={`${baseClasses} ${feedback.type === "success" ? successClasses : errorClasses
-        }`}
-      style={{ animation: 'slideUp 0.3s ease-out forwards' }}
+      className={`${baseClasses} ${
+        feedback.type === "success" ? successClasses : errorClasses
+      }`}
+      style={{ animation: "slideUp 0.3s ease-out forwards" }}
     >
       <div className="flex items-center space-x-3">
         {feedback.type === "success" ? (
@@ -156,141 +164,134 @@ const FeedbackMessage: React.FC<{
 };
 
 // ---------------- EVENT CARD ----------------
-const EventCard = memo(
-  ({
-    event,
-  }: {
-    event: EventData;
-  }) => {
-    const { isSignedIn, isLoaded } = useUser();
+const EventCard = memo(({ event }: { event: EventData }) => {
+  const { isSignedIn, isLoaded } = useUser();
 
-    const getGoogleMapsUrl = (location: string, city: string) => {
-      const encodedLocation = encodeURIComponent(`${location}, ${city}`);
-      return `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
-    };
+  const getGoogleMapsUrl = (location: string, city: string) => {
+    const encodedLocation = encodeURIComponent(`${location}, ${city}`);
+    return `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
+  };
 
-    const getGoogleCalendarUrl = (event: EventData) => {
-      const date = new Date(event.date);
-      const end = new Date(date.getTime() + 2 * 60 * 60 * 1000);
+  const getGoogleCalendarUrl = (event: EventData) => {
+    const date = new Date(event.date);
+    const end = new Date(date.getTime() + 2 * 60 * 60 * 1000);
 
-      const formatDateTime = (d: Date) =>
-        d
-          .toISOString()
-          .replace(/[-:]|\.\d{3}/g, "")
-          .slice(0, 15);
+    const formatDateTime = (d: Date) =>
+      d
+        .toISOString()
+        .replace(/[-:]|\.\d{3}/g, "")
+        .slice(0, 15);
 
-      const dates = `${formatDateTime(date)}/${formatDateTime(end)}`;
-      const text = encodeURIComponent(event.title);
-      const details = encodeURIComponent(event.description);
-      const location = encodeURIComponent(
-        `${event.location.name}, ${event.city.name}`
-      );
-
-      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}&sf=true&output=xml`;
-    };
-
-    const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    return (
-      <div
-        className="bg-white p-5 rounded-xl shadow-lg transition-transform duration-300 hover:shadow-xl relative flex flex-col h-full 
-        border border-gray-900"
-        style={{
-          boxShadow: "4px 4px 0px 0px #1a202c",
-        }}
-      >
-        <img
-          src={
-            event.image ||
-            "https://placehold.co/600x160/cccccc/333333?text=Image+Missing"
-          }
-          alt={event.title}
-          className="w-full h-40 object-cover rounded-lg mb-4 border border-gray-200"
-          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-            const target = e.target as HTMLImageElement;
-            target.onerror = null;
-            target.src =
-              "https://placehold.co/600x160/cccccc/333333?text=Image+Missing";
-          }}
-        />
-
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 line-clamp-2">
-              {event.title}
-            </h3>
-            <p className="text-sm text-purple-600 font-medium mt-1">
-              {formattedDate}
-            </p>
-          </div>
-          <div className="flex-shrink-0 ml-3 mt-1" title={event.category.name}>
-            {getIcon(event.category.name)}
-          </div>
-        </div>
-
-
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 pt-3 border-t border-gray-100 mt-auto">
-          <a
-            href={getGoogleMapsUrl(event.location.name, event.city.name)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center text-xs hover:text-purple-600 transition-colors duration-200"
-            title="View on Google Maps"
-          >
-            <MapPinIcon className="h-4 w-4 mr-1 text-purple-500" />
-            <span className="line-clamp-1 font-medium">{event.location.name}</span>
-          </a>
-          <a
-            href={getGoogleCalendarUrl(event)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center text-xs hover:text-purple-600 transition-colors duration-200"
-            title="Add to Google Calendar"
-          >
-            <CalendarPlusIcon className="h-4 w-4 mr-1 text-purple-500" />
-            <span>Add to Calendar</span>
-          </a>
-        </div>
-
-        {isLoaded && (
-          <>
-            {isSignedIn ? (
-              <Link
-                href={`/events/${event._id}`}
-                className="mt-4 w-full flex items-center justify-center py-2 px-4 rounded-lg bg-purple-600 text-white font-bold 
-                  shadow-md hover:bg-purple-700 transition-colors duration-200 border border-purple-800"
-              >
-                <InformationIcon className="h-5 w-5 mr-2" />
-                More Details
-              </Link>
-            ) : (
-              <SignInButton>
-                <button
-                  className="mt-4 w-full flex items-center justify-center py-2 px-4 rounded-lg bg-gray-600 text-white font-bold 
-                    shadow-md hover:bg-gray-700 transition-colors duration-200 border border-gray-800"
-                >
-                  <LockIcon className="h-5 w-5 mr-2" />
-                  Sign In to View Details
-                </button>
-              </SignInButton>
-            )}
-          </>
-        )}
-      </div>
+    const dates = `${formatDateTime(date)}/${formatDateTime(end)}`;
+    const text = encodeURIComponent(event.title);
+    const details = encodeURIComponent(event.description);
+    const location = encodeURIComponent(
+      `${event.location.name}, ${event.city.name}`
     );
-  }
-);
 
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}&sf=true&output=xml`;
+  };
+
+  const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return (
+    <div
+      className="bg-white p-5 rounded-xl shadow-lg transition-transform duration-300 hover:shadow-xl relative flex flex-col h-full 
+        border border-gray-900"
+      style={{
+        boxShadow: "4px 4px 0px 0px #1a202c",
+      }}
+    >
+      <img
+        src={
+          event.image ||
+          "https://placehold.co/600x160/cccccc/333333?text=Image+Missing"
+        }
+        alt={event.title}
+        className="w-full h-40 object-cover rounded-lg mb-4 border border-gray-200"
+        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+          const target = e.target as HTMLImageElement;
+          target.onerror = null;
+          target.src =
+            "https://placehold.co/600x160/cccccc/333333?text=Image+Missing";
+        }}
+      />
+
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <h3 className="text-xl font-bold text-gray-900 line-clamp-2">
+            {event.title}
+          </h3>
+          <p className="text-sm text-purple-600 font-medium mt-1">
+            {formattedDate}
+          </p>
+        </div>
+        <div className="flex-shrink-0 ml-3 mt-1" title={event.category.name}>
+          {getIcon(event.category.name)}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 pt-3 border-t border-gray-100 mt-auto">
+        <a
+          href={getGoogleMapsUrl(event.location.name, event.city.name)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center text-xs hover:text-purple-600 transition-colors duration-200"
+          title="View on Google Maps"
+        >
+          <MapPinIcon className="h-4 w-4 mr-1 text-purple-500" />
+          <span className="line-clamp-1 font-medium">
+            {event.location.name}
+          </span>
+        </a>
+        <a
+          href={getGoogleCalendarUrl(event)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center text-xs hover:text-purple-600 transition-colors duration-200"
+          title="Add to Google Calendar"
+        >
+          <CalendarPlusIcon className="h-4 w-4 mr-1 text-purple-500" />
+          <span>Add to Calendar</span>
+        </a>
+      </div>
+
+      {isLoaded && (
+        <>
+          {isSignedIn ? (
+            <Link
+              href={`/events/${event._id}`}
+              className="mt-4 w-full flex items-center justify-center py-2 px-4 rounded-lg bg-purple-600 text-white font-bold 
+                  shadow-md hover:bg-purple-700 transition-colors duration-200 border border-purple-800"
+            >
+              <InformationIcon className="h-5 w-5 mr-2" />
+              More Details
+            </Link>
+          ) : (
+            <SignInButton>
+              <button
+                className="mt-4 w-full flex items-center justify-center py-2 px-4 rounded-lg bg-gray-600 text-white font-bold 
+                    shadow-md hover:bg-gray-700 transition-colors duration-200 border border-gray-800"
+              >
+                <LockIcon className="h-5 w-5 mr-2" />
+                Sign In to View Details
+              </button>
+            </SignInButton>
+          )}
+        </>
+      )}
+    </div>
+  );
+});
 
 // ---------------- HEADER COMPONENT ----------------
-
 
 const Header = ({
   searchQuery,
@@ -304,20 +305,30 @@ const Header = ({
   setDateFilter: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   return (
-    <header className="w-full flex justify-center pt-12 sm:pt-16 pb-8 sm:pb-12 font-sans mb-12 sm:mb-8 ">
-      <div className="w-full max-w-4xl text-center">
-        
+    <header className="w-full flex justify-center pt-12 sm:pt-16 pb-8 sm:pb-12 font-sans mb-12 sm:mb-8 relative z-0">
+      {/* WarpBackground added here */}
+      <WarpBackground
+        className="absolute bg-blue-200 rounded-md inset-0 w-full h-full z-0"
+        speed={10}
+      >
+        {/* Using a very light purple (purple-50) with 30% opacity and a medium blur */}
+        <div className="absolute inset-0 bg-purple-500 backdrop-blur-md"></div>
+      </WarpBackground>
+
+      {/* Content moved inside a z-10 div to ensure it's above the background */}
+      <div className="w-full max-w-4xl text-center relative z-10">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black leading-tight mb-4 sm:mb-6">
           Ready to Get <span className="text-purple-700">InTheLoop</span>?
         </h1>
         <p className="text-base sm:text-lg text-gray-500 mb-8 sm:mb-10 max-w-2xl mx-auto">
-            Discover a loop of exciting events
+          Discover a loop of exciting events
         </p>
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-4 max-w-4xl mx-auto items-center">
-          
           {/* Search Input: Primary action */}
           <div className="relative flex-1 w-full">
-            <label htmlFor="search-input" className="sr-only">Search Events</label>
+            <label htmlFor="search-input" className="sr-only">
+              Search Events
+            </label>
             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-500 h-5 w-5 sm:h-6 sm:w-6" />
             <input
               id="search-input"
@@ -336,28 +347,28 @@ const Header = ({
             />
           </div>
 
-          <div className="relative w-full sm:w-64 flex-shrink-0"> 
-            <div 
-                className="relative flex items-center w-full bg-white border-2 border-gray-900 rounded-xl shadow-lg"
-                style={{
-                    boxShadow: "4px 4px 0px 0px #1a202c",
-                }}
+          <div className="relative w-full sm:w-64 flex-shrink-0">
+            <div
+              className="relative flex items-center w-full bg-white border-2 border-gray-900 rounded-xl shadow-lg"
+              style={{
+                boxShadow: "4px 4px 0px 0px #1a202c",
+              }}
             >
-                <CalendarPlusIcon className="absolute left-4 text-purple-500 h-5 w-5 sm:h-6 sm:w-6 pointer-events-none" />
-                <input
-                  id="date-filter"
-                  type="date"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="w-full py-3.5 sm:py-4 pl-12 pr-12 bg-transparent text-lg text-gray-800 
+              <CalendarPlusIcon className="absolute left-4 text-purple-500 h-5 w-5 sm:h-6 sm:w-6 pointer-events-none" />
+              <input
+                id="date-filter"
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-full py-3.5 sm:py-4 pl-12 pr-12 bg-transparent text-lg text-gray-800 
                   placeholder-gray-500 transition-all duration-200 appearance-none
                   focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-600 
                   rounded-xl"
-                  title="Filter by Date"
-                  style={{
-                    colorScheme: "light"
-                  }}
-                />
+                title="Filter by Date"
+                style={{
+                  colorScheme: "light",
+                }}
+              />
             </div>
           </div>
         </div>
@@ -486,20 +497,23 @@ export default function EventCrudManager() {
     );
   }, []);
 
-  const filterEvents = useCallback((eventsList: EventData[]) => {
-    return eventsList.filter((event) => {
-      const matchesSearch =
-        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.location.name.toLowerCase().includes(searchQuery.toLowerCase());
+  const filterEvents = useCallback(
+    (eventsList: EventData[]) => {
+      return eventsList.filter((event) => {
+        const matchesSearch =
+          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          event.location.name.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesDate = dateFilter
-        ? new Date(event.date).toISOString().split('T')[0] === dateFilter
-        : true;
+        const matchesDate = dateFilter
+          ? new Date(event.date).toISOString().split("T")[0] === dateFilter
+          : true;
 
-      return matchesSearch && matchesDate;
-    });
-  }, [searchQuery, dateFilter]);
+        return matchesSearch && matchesDate;
+      });
+    },
+    [searchQuery, dateFilter]
+  );
 
   const eventsInMyCity = useMemo(() => {
     const cityMatched = events.filter(
@@ -518,13 +532,12 @@ export default function EventCrudManager() {
     <main className="min-h-screen text-gray-900 font-sans">
       <FeedbackMessage feedback={feedback} onClose={() => setFeedback(null)} />
 
-      
-        <Header
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          dateFilter={dateFilter}
-          setDateFilter={setDateFilter}
-        />
+      <Header
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
+      />
 
       <Container>
         <section className="py-12 md:py-16 pt-4">
@@ -569,7 +582,10 @@ export default function EventCrudManager() {
           </div>
 
           {cityError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+            <div
+              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+              role="alert"
+            >
               <p className="font-bold">Location Error</p>
               <p className="text-sm">{cityError}</p>
             </div>
@@ -588,10 +604,7 @@ export default function EventCrudManager() {
           {!fetchLoading && eventsInMyCity.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {eventsInMyCity.map((event) => (
-                <EventCard
-                  key={event._id}
-                  event={event}
-                />
+                <EventCard key={event._id} event={event} />
               ))}
             </div>
           ) : (
@@ -601,7 +614,10 @@ export default function EventCrudManager() {
                 style={{ boxShadow: "4px 4px 0px 0px #1a202c" }}
               >
                 <p className="mb-2">
-                  <Icon icon="mdi:calendar-search" className="inline h-8 w-8 text-black" />
+                  <Icon
+                    icon="mdi:calendar-search"
+                    className="inline h-8 w-8 text-black"
+                  />
                 </p>
                 <p>
                   No events in{" "}
@@ -619,10 +635,7 @@ export default function EventCrudManager() {
           {allFilteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {allFilteredEvents.map((event) => (
-                <EventCard
-                  key={event._id}
-                  event={event}
-                />
+                <EventCard key={event._id} event={event} />
               ))}
             </div>
           ) : (
@@ -632,7 +645,10 @@ export default function EventCrudManager() {
                 style={{ boxShadow: "4px 4px 0px 0px #1a202c" }}
               >
                 <p className="mb-2">
-                  <Icon icon="mdi:calendar-off" className="inline h-8 w-8 text-gray-500" />
+                  <Icon
+                    icon="mdi:calendar-off"
+                    className="inline h-8 w-8 text-gray-500"
+                  />
                 </p>
                 <p>No events available.</p>
               </div>
