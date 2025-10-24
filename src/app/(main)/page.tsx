@@ -306,26 +306,19 @@ const Header = ({
 }) => {
   return (
     <header className="w-full flex justify-center pt-12 sm:pt-16 pb-8 sm:pb-12 font-sans mb-12 sm:mb-8 relative z-0">
-      {/* WarpBackground added here */}
       <WarpBackground
         className="absolute bg-blue-200 rounded-md inset-0 w-full h-full z-0"
-        speed={10}
       >
-        {/* Using a very light purple (purple-50) with 30% opacity and a medium blur */}
         <div className="absolute inset-0 bg-purple-500 backdrop-blur-md"></div>
       </WarpBackground>
 
-      {/* Content moved inside a z-10 div to ensure it's above the background */}
       <div className="w-full max-w-4xl text-center relative z-10">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black leading-tight mb-4 sm:mb-6">
-          Ready to Get <span className="text-purple-700">InTheLoop</span>?
+          Ready to Get <span className="text-purple-900">InTheLoop</span>?
         </h1>
-        <p className="text-base sm:text-lg text-gray-500 mb-8 sm:mb-10 max-w-2xl mx-auto">
-          Discover a loop of exciting events
-        </p>
-        <div className="flex flex-col gap-4 sm:flex-row sm:gap-4 max-w-4xl mx-auto items-center">
-          {/* Search Input: Primary action */}
-          <div className="relative flex-1 w-full">
+        
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-4 mx-auto items-center justify-center">
+          <div className="relative">
             <label htmlFor="search-input" className="sr-only">
               Search Events
             </label>
@@ -333,10 +326,9 @@ const Header = ({
             <input
               id="search-input"
               type="text"
-              placeholder="Search events and locations... "
+              placeholder="Search events and locations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              // Branded shadow and focus
               className="w-full py-3.5 sm:py-4 pl-12 pr-4 bg-white border-2 border-gray-900 rounded-xl
               text-gray-800 placeholder-gray-500 transition-all duration-200
               focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-600 
@@ -346,15 +338,13 @@ const Header = ({
               }}
             />
           </div>
-
-          <div className="relative w-full sm:w-64 flex-shrink-0">
+          <div className="relative w-full flex justify-center items-center sm:w-64 flex-shrink-0">
             <div
               className="relative flex items-center w-full bg-white border-2 border-gray-900 rounded-xl shadow-lg"
               style={{
                 boxShadow: "4px 4px 0px 0px #1a202c",
               }}
             >
-              <CalendarPlusIcon className="absolute left-4 text-purple-500 h-5 w-5 sm:h-6 sm:w-6 pointer-events-none" />
               <input
                 id="date-filter"
                 type="date"

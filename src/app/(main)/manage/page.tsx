@@ -1,11 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-
-
-// ====================================================================
-// --- Dynamic Icon Map & Component (Kept as-is) ---
-// ====================================================================
+// Import useUser from Clerk
+import { useUser } from "@clerk/nextjs";
 
 const IconMap: {
   [key: string]: {
@@ -115,9 +112,6 @@ const DynamicIcon = ({ iconName, ...props }: DynamicIconProps) => {
   );
 };
 
-// ====================================================================
-// --- Toast Notification Implementation (Kept as-is) ---
-// ====================================================================
 
 interface ToastItem {
   id: number;
@@ -228,7 +222,7 @@ const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 // ====================================================================
-// --- Interfaces & Initial State (Kept as-is) ---
+// --- Interfaces & Initial State (MODIFIED for shortDescription) ---
 // ====================================================================
 
 interface EventData {
@@ -240,6 +234,8 @@ interface EventData {
   category: { name: string };
   city: { name: string };
   location: { name: string; city: { name: string } };
+  shortDescription: string; // New field
+  creatorId: string; // New field
   createdAt: string;
 }
 
@@ -247,36 +243,56 @@ interface FormData {
   _id: string | null;
   title: string;
   description: string;
-  date: string;
   category: string;
   city: string;
   location: string;
   image: string;
+  shortDescription: string; // New field
 }
 
 const initialFormData: FormData = {
   _id: null,
   title: "",
   description: "",
-  date: "",
   category: "",
   city: "",
   location: "",
   image: "",
+  shortDescription: "", // Initial value
+};
+
+
+// Helper function to format an ISO date to YYYY-MM-DD
+const formatDate = (isoDate: string): string => {
+    return new Date(isoDate).toISOString().substring(0, 10);
+};
+
+// Helper function to format an ISO date to HH:MM (24h)
+const formatTime = (isoDate: string): string => {
+    const date = new Date(isoDate);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
 };
 
 
 // ====================================================================
-// --- Main Component: EventManagement (MODIFIED TOGGLE LOGIC) ---
+// --- Main Component: EventManagement (MODIFIED CLERK & DESCRIPTION LOGIC) ---
 // ====================================================================
 
 function EventManagement() {
+  const { user, isLoaded, isSignedIn } = useUser(); // CLERK INTEGRATION
+  
   const [events, setEvents] = useState<EventData[]>([]);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [loading, setLoading] = useState<boolean>(false);
   const [fetchLoading, setFetchLoading] = useState<boolean>(true);
   
-  // NEW STATE: Controls the visibility of the form
+  // States for split date/time inputs
+  const [eventDate, setEventDate] = useState<string>(""); // YYYY-MM-DD
+  const [eventTime, setEventTime] = useState<string>(""); // HH:MM
+
+  // Controls the visibility of the form
   const [showForm, setShowForm] = useState<boolean>(false);
 
   const showToast = useToast();
@@ -284,7 +300,7 @@ function EventManagement() {
   const isEditing = !!formData._id;
   const MONGODB_API_ENDPOINT = "/api/events";
 
-  // --- Data Fetching ---
+  // --- Data Fetching (Kept as-is) ---
   const fetchEvents = useCallback(async () => {
     setFetchLoading(true);
     try {
@@ -311,65 +327,99 @@ function EventManagement() {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    // Special handling for the new date and time fields
+    if (name === "eventDate") {
+      setEventDate(value);
+    } else if (name === "eventTime") {
+      setEventTime(value);
+    } else {
+      // Handles title, description, shortDescription, category, city, location, image
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const resetForm = () => {
     setFormData(initialFormData);
+    setEventDate("");
+    setEventTime("");
   };
 
   const handleEdit = (eventToEdit: EventData) => {
-    // 1. Show the form
+    // 1. Check if the current user created the event (Security check)
+    if (!user || user.id !== eventToEdit.creatorId) {
+      showToast("You can only edit events you created.", "error");
+      return;
+    }
+
+    // 2. Show the form
     setShowForm(true);
 
-    // 2. Populate the form data
-    const formattedDate = new Date(eventToEdit.date)
-      .toISOString()
-      .substring(0, 16);
+    // 3. Split and populate the date/time form data
+    setEventDate(formatDate(eventToEdit.date));
+    setEventTime(formatTime(eventToEdit.date));
 
+    // 4. Populate the rest of the form data, including shortDescription
     setFormData({
       _id: eventToEdit._id,
       title: eventToEdit.title,
       description: eventToEdit.description,
-      date: formattedDate,
       category: eventToEdit.category.name,
       city: eventToEdit.city.name,
       location: eventToEdit.location.name,
       image: eventToEdit.image,
+      shortDescription: eventToEdit.shortDescription, // New field
     });
     
-    // 3. Scroll to the form
+    // 5. Scroll to the form
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Function to prepare the form for a new creation or toggle visibility
   const handleToggleCreateForm = () => {
     if (showForm && !isEditing) {
-        // If visible and not editing (i.e., we are in create mode), hide it
-        setShowForm(false);
-        resetForm();
+      // If visible and not editing (i.e., we are in create mode), hide it
+      setShowForm(false);
+      resetForm();
     } else {
-        // If hidden or currently editing an old event, show/reset to create mode
-        resetForm(); // Ensure we clear any old edit data
-        setShowForm(true); 
-        window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to the form
+      // If hidden or currently editing an old event, show/reset to create mode
+      resetForm(); // Ensure we clear any old edit data
+      setShowForm(true); 
+      window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to the form
     }
   }
 
-  // --- CRUD Operations (Using Toast for feedback) ---
+  // --- CRUD Operations (MODIFIED SUBMIT & DELETE LOGIC) ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    if (!isSignedIn || !user || !user.id) {
+        showToast("You must be logged in to create or update events.", "error");
+        setLoading(false);
+        return;
+    }
 
     const method = isEditing ? "PUT" : "POST";
     const url = isEditing
       ? `${MONGODB_API_ENDPOINT}/${formData._id}`
       : MONGODB_API_ENDPOINT;
+    
+    const localDateTimeString = `${eventDate}T${eventTime}`; 
+    
+    if (!eventDate || !eventTime) {
+      showToast("Date and Time are required.", "error");
+      setLoading(false);
+      return;
+    }
 
     // Prepare data to send to the API
     const requestData = {
       ...formData,
-      date: new Date(formData.date).toISOString(), // Ensure ISO format for Mongoose
+      // Pass the Clerk user ID as creatorId
+      creatorId: user.id, 
+      // Convert combined date/time string to ISO format for Mongoose
+      date: new Date(localDateTimeString).toISOString(), 
     };
 
     try {
@@ -402,12 +452,18 @@ function EventManagement() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (eventToDelete: EventData) => {
+    // Security check before confirming delete
+    if (!user || user.id !== eventToDelete.creatorId) {
+        showToast("You can only delete events you created.", "error");
+        return;
+    }
+
     if (!window.confirm("Are you sure you want to delete this event? This action cannot be undone.")) return;
     setLoading(true);
 
     try {
-      const response = await fetch(`${MONGODB_API_ENDPOINT}/${id}`, {
+      const response = await fetch(`${MONGODB_API_ENDPOINT}/${eventToDelete._id}`, {
         method: "DELETE",
       });
 
@@ -420,7 +476,7 @@ function EventManagement() {
 
       showToast("Event deleted successfully.", "success");
       // If we were editing the deleted event, reset the form state and hide
-      if (formData._id === id) {
+      if (formData._id === eventToDelete._id) {
           resetForm();
           setShowForm(false);
       }
@@ -432,6 +488,29 @@ function EventManagement() {
       setLoading(false);
     }
   };
+  
+  // Handle Loading State for Clerk
+  if (!isLoaded) {
+    return (
+        <main className="min-h-screen bg-gray-50 p-8 text-center flex items-center justify-center">
+            <p className="text-xl font-medium text-purple-600">Loading user session...</p>
+        </main>
+    );
+  }
+  
+  // Render a message if the user is not signed in and tries to manage events
+  if (!isSignedIn) {
+    return (
+        <main className="min-h-screen bg-gray-50 p-8 text-center">
+            <div className="w-full max-w-4xl mx-auto py-24">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-red-600 mb-4">Access Denied 🔒</h1>
+                <p className="text-lg text-gray-700">Please sign in to manage events.</p>
+                {/* You should include a <SignInButton /> here if you want to offer sign-in directly */}
+            </div>
+        </main>
+    );
+  }
+
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900 font-['Inter',_sans-serif] p-4 sm:p-8">
@@ -442,19 +521,21 @@ function EventManagement() {
       `}</style>
 
       <div className="w-full max-w-4xl mx-auto py-6">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 flex items-center">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4 flex items-center">
           <DynamicIcon iconName="edit" className="h-8 w-8 mr-3 text-purple-600"/>
           Event Management Dashboard
         </h1>
+        <p className="text-sm text-gray-500 mb-8">
+            Logged in as: <strong className="text-purple-600">{user?.emailAddresses[0]?.emailAddress}</strong> (Clerk ID: {user?.id})
+        </p>
+
 
         {/* --- TOGGLE BUTTON FOR CREATE FORM --- */}
         <div className="mb-8">
             <button
                 onClick={
-                    // If editing, clicking the button shows/hides the form while keeping edit data
                     isEditing 
                         ? () => setShowForm(prev => !prev) 
-                        // If not editing, clicking the button toggles between create form being shown/hidden
                         : handleToggleCreateForm
                 }
                 className={`w-full py-3 px-6 rounded-lg font-bold text-lg transition-all duration-300 flex items-center justify-center ${
@@ -485,7 +566,7 @@ function EventManagement() {
 
 
         {/* --------------------------- */}
-        {/* --- Event Form (C/U) - Conditional Rendering --- */}
+        {/* --- Event Form (C/U) - Conditional Rendering (MODIFIED) --- */}
         {/* --------------------------- */}
         {showForm && (
             <div className="mb-12">
@@ -513,59 +594,94 @@ function EventManagement() {
                         />
                     </div>
 
+                    {/* Short Description (NEW FIELD) */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700">
+                            Short Description (Max 50 Characters)
+                        </label>
+                        <input
+                            type="text"
+                            name="shortDescription"
+                            value={formData.shortDescription}
+                            onChange={handleChange}
+                            placeholder="A concise, attention-grabbing summary"
+                            maxLength={50}
+                            className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
+                            required
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                            {formData.shortDescription.length}/50 characters
+                        </p>
+                    </div>
+
                     {/* Description */}
                     <div>
                         <label className="block text-sm font-bold text-gray-700">
-                            Description
+                            Full Description
                         </label>
                         <textarea
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
-                            placeholder="Enter event description"
+                            placeholder="Enter full event description"
                             rows={4}
                             className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
                             required
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Date */}
-                        <div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        {/* Event Date Input */}
+                        <div className="col-span-1 md:col-span-2">
                             <label className="block text-sm font-bold text-gray-700">
-                                Event Date & Time
+                                Event Date
                             </label>
                             <input
-                                type="datetime-local"
-                                name="date"
-                                value={formData.date}
+                                type="date"
+                                name="eventDate"
+                                value={eventDate}
                                 onChange={handleChange}
                                 className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
                                 required
                             />
                         </div>
 
-                        {/* Category */}
-                        <div>
+                        {/* Event Time Input */}
+                        <div className="col-span-1 md:col-span-2">
                             <label className="block text-sm font-bold text-gray-700">
-                                Category
+                                Event Time
                             </label>
-                            <select
-                                name="category"
-                                value={formData.category}
+                            <input
+                                type="time"
+                                name="eventTime"
+                                value={eventTime}
                                 onChange={handleChange}
-                                className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150 bg-white"
+                                className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150"
                                 required
-                            >
-                                <option value="">Select a category</option>
-                                <option value="Concert">Concert</option>
-                                <option value="Party">Party</option>
-                                <option value="Dance">Dance</option>
-                                <option value="Movie">Movie</option>
-                                <option value="Competition">Competition</option>
-                                <option value="Workshop">Workshop</option>
-                            </select>
+                            />
                         </div>
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700">
+                            Category
+                        </label>
+                        <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleChange}
+                            className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-4 focus:ring-purple-500 focus:outline-none transition duration-150 bg-white"
+                            required
+                        >
+                            <option value="">Select a category</option>
+                            <option value="Concert">Concert</option>
+                            <option value="Party">Party</option>
+                            <option value="Dance">Dance</option>
+                            <option value="Movie">Movie</option>
+                            <option value="Competition">Competition</option>
+                            <option value="Workshop">Workshop</option>
+                        </select>
                     </div>
 
                     {/* City & Location */}
@@ -698,7 +814,7 @@ function EventManagement() {
               key={event._id}
               className={`bg-white p-6 rounded-xl shadow-lg border-2 transition hover:shadow-xl ${
                 isEditing && formData._id === event._id ? 'border-4 border-purple-500 ring-4 ring-purple-200' : 'border-gray-200 hover:border-purple-300'
-              }`}
+              } ${event.creatorId === user?.id ? 'border-l-8 border-l-green-500' : ''}`}
             >
               <div className="md:flex">
                 <img
@@ -721,7 +837,11 @@ function EventManagement() {
                   <h3 className="text-xl font-bold text-gray-800 line-clamp-1">
                     {event.title}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">
+                  {/* Display Short Description */}
+                  <p className="text-base text-gray-900 font-medium mt-1 mb-2">
+                    {event.shortDescription}
+                  </p>
+                  <p className="text-sm text-gray-500">
                     {new Date(event.date).toLocaleDateString("en-US", {
                       weekday: "short",
                       year: "numeric",
@@ -740,21 +860,24 @@ function EventManagement() {
                       className="h-4 w-4 mr-1 text-purple-600"
                     />
                     <span className="truncate">{event.location.name}, {event.city.name}</span>
+                    {/* Visual cue if the user is the creator */}
+                    {event.creatorId === user?.id && <span className="ml-3 text-xs font-bold text-green-600"> (My Event)</span>}
                   </p>
                 </div>
                 <div className="flex flex-row md:flex-col space-x-3 md:space-x-0 md:space-y-3 mt-4 md:mt-0 md:ml-6 items-start">
                   <button
                     onClick={() => handleEdit(event)}
-                    className="p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition shadow-md"
-                    title="Edit Event"
+                    className={`p-3 rounded-full text-white transition shadow-md ${event.creatorId === user?.id ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400 cursor-not-allowed'}`}
+                    title={event.creatorId === user?.id ? "Edit Event" : "Not your event to edit"}
+                    disabled={event.creatorId !== user?.id}
                   >
                     <DynamicIcon iconName="edit" className="h-5 w-5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(event._id)}
-                    className="p-3 rounded-full bg-red-500 text-white hover:bg-red-600 transition shadow-md"
-                    title="Delete Event"
-                    disabled={loading}
+                    onClick={() => handleDelete(event)}
+                    className={`p-3 rounded-full text-white transition shadow-md ${event.creatorId === user?.id ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-400 cursor-not-allowed'}`}
+                    title={event.creatorId === user?.id ? "Delete Event" : "Not your event to delete"}
+                    disabled={loading || event.creatorId !== user?.id}
                   >
                     <DynamicIcon iconName="trash" className="h-5 w-5" />
                   </button>
@@ -768,9 +891,6 @@ function EventManagement() {
   );
 }
 
-// ====================================================================
-// --- App Wrapper ---
-// ====================================================================
 
 export default function EventManagementApp() {
     return (

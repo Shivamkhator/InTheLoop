@@ -17,7 +17,7 @@ export const AuthButtons = () => {
         <div className="flex items-center space-x-4 mr-2">
             <SignedIn>
                 <p className="text-sm font-medium py-2">
-                    Hi, {user?.fullName}
+                    Hi, {user?.username}
                 </p>
                 <UserButton/>
             </SignedIn>

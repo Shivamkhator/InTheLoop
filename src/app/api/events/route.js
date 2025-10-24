@@ -73,7 +73,6 @@ export async function POST(req) {
     await dbConnect();
     const body = await req.json();
 
-    // 1. Find or Create supporting documents (Category, City, Location)
     const category = await Category.findOneAndUpdate(
       { name: body.category },
       { name: body.category, icon: body.icon },
@@ -99,6 +98,8 @@ export async function POST(req) {
       category: category._id,
       city: city._id,
       location: location._id,
+      shortDescription: body.shortDescription,
+      creatorId: body.creatorId,
     });
 
     // 3. Invalidate Redis cache: Ensures the next GET will hit the DB for fresh data
@@ -162,6 +163,8 @@ export async function PUT(req, { params }) {
         category: category._id,
         city: city._id,
         location: location._id,
+        shortDescription: body.shortDescription,
+        creatorId: body.creatorId,
       },
       { new: true }
     );

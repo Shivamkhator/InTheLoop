@@ -10,10 +10,6 @@ import * as NodeRedis from "@/lib/redis";
 
 const CACHE_KEY = "all_upcoming_events";
 
-// ---------------- GET (READ SINGLE EVENT) - FIX FOR 405 ERROR ----------------
-/**
- * Handles GET requests to /api/events/[id] to fetch a single event.
- */
 export async function GET(req: Request, { params }: { params: { id: string } }) {
     const NodeRedisClient = NodeRedis.default;
     const { id } = params;
