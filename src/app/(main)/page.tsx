@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { useUser, SignInButton } from "@clerk/nextjs";
 
-// Import the WarpBackground component
 import dynamic from "next/dynamic";
 const WarpBackground = dynamic(
   () =>
@@ -128,9 +128,8 @@ const FeedbackMessage: React.FC<{
 
   return (
     <div
-      className={`${baseClasses} ${
-        feedback.type === "success" ? successClasses : errorClasses
-      }`}
+      className={`${baseClasses} ${feedback.type === "success" ? successClasses : errorClasses
+        }`}
       style={{ animation: "slideUp 0.3s ease-out forwards" }}
     >
       <div className="flex items-center space-x-3">
@@ -316,20 +315,36 @@ const Header = ({
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black leading-tight mb-4 sm:mb-6">
           Ready to Get <span className="text-purple-900">InTheLoop</span>?
         </h1>
-        
-        <div className="flex flex-col gap-4 sm:flex-row sm:gap-4 mx-auto items-center justify-center">
-          <div className="relative">
-            <label htmlFor="search-input" className="sr-only">
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-4 mx-4 items-center justify-center">
+          <div className="relative w-3/4 md:w-1/2">
+            <label htmlFor="search-input-sm" className="sr-only">
               Search Events
             </label>
             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-500 h-5 w-5 sm:h-6 sm:w-6" />
+
+            <input
+              id="search-input-sm"
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="block w-full py-3.5 sm:py-4 pl-12 pr-4 bg-white border-2 border-gray-900 rounded-xl
+              text-gray-800 placeholder-gray-500 transition-all duration-200
+              focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-600 
+              shadow-lg hover:shadow-xl md:hidden"
+              style={{
+                boxShadow: "4px 4px 0px 0px #1a202c",
+              }}
+            />
+
             <input
               id="search-input"
               type="text"
               placeholder="Search events and locations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full py-3.5 sm:py-4 pl-12 pr-4 bg-white border-2 border-gray-900 rounded-xl
+              className="hidden md:block w-full py-3.5 sm:py-4 pl-12 pr-4 bg-white border-2 border-gray-900 rounded-xl
               text-gray-800 placeholder-gray-500 transition-all duration-200
               focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-600 
               shadow-lg hover:shadow-xl"
@@ -338,7 +353,7 @@ const Header = ({
               }}
             />
           </div>
-          <div className="relative w-full flex justify-center items-center sm:w-64 flex-shrink-0">
+          <div className="relative flex justify-center items-center flex-shrink-0 w-3/4 md:w-1/2">
             <div
               className="relative flex items-center w-full bg-white border-2 border-gray-900 rounded-xl shadow-lg"
               style={{
@@ -350,7 +365,7 @@ const Header = ({
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="w-full py-3.5 sm:py-4 pl-12 pr-12 bg-transparent text-lg text-gray-800 
+                className="w-full py-3.5 sm:py-4 pl-8 pr-8 bg-transparent text-lg text-gray-800 
                   placeholder-gray-500 transition-all duration-200 appearance-none
                   focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-600 
                   rounded-xl"

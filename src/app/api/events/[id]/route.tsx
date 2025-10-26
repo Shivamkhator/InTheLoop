@@ -13,6 +13,7 @@ const CACHE_KEY = "all_upcoming_events";
 export async function GET(req: Request, { params }: { params: { id: string } }) {
     const NodeRedisClient = NodeRedis.default;
     const { id } = params;
+    const eventId = params.id;
 
     if (!id) {
         return NextResponse.json({ error: "Event ID is required" }, { status: 400 });

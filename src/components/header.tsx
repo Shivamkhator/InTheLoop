@@ -51,16 +51,13 @@ export function Header() {
   // Filter navigation items based on authentication status
   const navItems = useMemo(() => {
     if (!isLoaded) {
-      // While loading, show only public items
       return allNavItems.filter(item => !item.requiresAuth);
     }
     
     if (isSignedIn) {
-      // Show all items when signed in
       return allNavItems;
     }
     
-    // Show only public items when not signed in
     return allNavItems.filter(item => !item.requiresAuth);
   }, [isLoaded, isSignedIn]);
 
@@ -69,7 +66,6 @@ export function Header() {
   return (
     <div className="sticky w-full top-4 z-50">
       <Navbar>
-        {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
           <NavItems items={navItems} currentPath={pathname} />

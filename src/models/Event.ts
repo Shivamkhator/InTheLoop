@@ -32,5 +32,6 @@ const EventSchema: Schema<IEvent> = new Schema(
   { timestamps: true }
 );
 
-export default (mongoose.models.Event as Model<IEvent>) ||
-  mongoose.model<IEvent>("Event", EventSchema);
+const Event = mongoose.models.Event || mongoose.model<IEvent>("Event", EventSchema);
+
+export default Event;

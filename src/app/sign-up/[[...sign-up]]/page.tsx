@@ -5,8 +5,10 @@ import * as Clerk from '@clerk/elements/common'
 import * as SignUp from '@clerk/elements/sign-up'
 import { TypewriterEffectSmooth } from '@/components/ui/typewriter-effect'
 import { Compare } from '@/components/ui/compare'
+import { useState } from 'react'
 
 export default function SignUpPage() {
+  const [isEventCreator, setIsEventCreator] = useState(false)
 
   const words = [
     {
@@ -68,6 +70,10 @@ export default function SignUpPage() {
 
                 <Clerk.GlobalError className="block text-center text-sm text-red-500" />
 
+                <Clerk.Field name="rolePreference" className="hidden">
+                  <Clerk.Input type="hidden" value={isEventCreator.toString()} />
+                </Clerk.Field>
+
 
                 {/* Email Field */}
                 <Clerk.Field name="emailAddress">
@@ -85,7 +91,7 @@ export default function SignUpPage() {
                   <Clerk.FieldError className="mt-2 block text-xs text-red-500" />
                 </Clerk.Field>
 
-                <div className='flex gap-4 '>
+                <div className='grid grid-flow-col gap-4 w-full'>
                   <Clerk.Field name="username">
                     <Clerk.Label className="sr-only">Username</Clerk.Label>
                     <Clerk.Input
@@ -139,49 +145,10 @@ export default function SignUpPage() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-center">
-                    <h2 className="text-lg font-bold text-gray-800">Or continue with</h2>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Google */}
-                    <Clerk.Connection
-                      name="google"
-                      className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white py-2.5 px-4 font-medium text-gray-700 transition-all duration-200 hover:-translate-x-[2px] hover:-translate-y-[2px]"
-                      style={{
-                        border: '0.5px solid #2aaa2a',
-                        boxShadow: '4px 4px 2px rgb(0, 0, 0)',
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.boxShadow = '8px 8px 2px rgb(0, 0, 0)'
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.boxShadow = '4px 4px 2px rgb(0, 0, 0)'
-                      }}
-                    >
-                      <Icon icon="flat-color-icons:google" className='h-5 w-5' />
-                      Register with Google
-                    </Clerk.Connection>
-
-                    {/* Apple */}
-                    <Clerk.Connection
-                      name="apple"
-                      className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#2a2a2a] py-2.5 px-4 font-medium text-white transition-all duration-200 hover:-translate-x-[2px] hover:-translate-y-[2px]"
-                      style={{
-                        boxShadow: '4px 4px 2px rgb(0, 0, 0)',
-                        border: '1px solid #2a2a2a',
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.boxShadow = '8px 8px 2px rgb(0, 0, 0)'
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.boxShadow = '4px 4px 2px rgb(0, 0, 0)'
-                      }}
-                    >
-                      <Icon icon="ant-design:apple-filled" className='h-5 w-5' />
-                      Register with Apple
-                    </Clerk.Connection>
+                    <h2 className="text-lg font-bold text-gray-800">Or</h2>
                   </div>
                 </div>
+
 
 
                 {/* Link to Sign In */}
@@ -194,11 +161,28 @@ export default function SignUpPage() {
                     Login
                   </Clerk.Link>
                 </p>
+
+                <div
+                  className="flex items-start gap-3 rounded-xl border bg-blue-50 px-4 py-3"
+                  style={{
+                    border: '1px solid #3b82f6',
+                    boxShadow: '2px 2px 1px rgb(59, 130, 246, 0.3)',
+                  }}
+                >
+                  <Icon icon="mdi:information" className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex flex-col">
+                    <p className="text-sm font-semibold text-blue-900">Account Registration</p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Must register with email for verification purposes. Social login is available after account creation.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </SignUp.Step>
 
+        {/* Sign-Up Step 2: Email Verification */}
         <SignUp.Step
           name="verifications"
           className="w-full space-y-6 rounded-2xl bg-white px-4 py-10 sm:w-96 sm:px-8"
